@@ -93,28 +93,10 @@ if args.loss == 'train_compressor_vmim':
 elif args.loss == 'train_compressor_mse':
   l_name = 'mse'
 
-print('######## CREATE OBSERVATION ########')
+print('######## Load OBSERVATION ########')
 
-# plot observed mass map
-model = partial(lensingLogNormal,
-                model_type='lognormal',
-                with_noise=True)
-
-# condition the model on a given set of parameters
-fiducial_model = condition(model, {'omega_c': 0.2664, 
-                                   'omega_b': 0.0492,
-                                   'sigma_8': 0.831,
-                                   'h_0': 0.6727,
-                                   'n_s': 0.9645,
-                                   'w_0': -1.0})
-
-
-#sample a mass map
+m_data = jnp.load( DATA_DIR / 'm_data__256N_10ms_27gpa_026se.npy')
 key_par=jax.random.PRNGKey(args.seed)
-model_trace = trace(seed(fiducial_model, key_par)).get_trace()
-m_data = model_trace['y']['value']
-
-
 print('######## DATA AUGMENTATION ########')
 tf.random.set_seed(1)
 
@@ -309,11 +291,11 @@ sample_nd = nvp_sample_nd.apply(
 )
 
 print('######## Save parameters ########')
-with open(DATA_DIR / "params_nd_{}_{}.pkl".format(args.filename, l_name), "wb") as fp:
+with open(DATA_DIR / "diff_realizations/params_nd_{}_{}.pkl".format(args.filename, l_name), "wb") as fp:
   pickle.dump(params_nd, fp)
 
-with open(DATA_DIR / "opt_state_nd_{}_{}.pkl".format(args.filename, l_name), "wb") as fp:
+with open(DATA_DIR / "diff_realizations/opt_state_nd_{}_{}.pkl".format(args.filename, l_name), "wb") as fp:
   pickle.dump(opt_state_nd, fp)
 
-with open(DATA_DIR / "sample_nd_{}_{}.pkl".format(args.filename, l_name), "wb") as fp:
+with open(DATA_DIR / "diff_realizations/sample_nd_{}_{}.pkl".format(args.filename, l_name), "wb") as fp:
   pickle.dump(sample_nd, fp)
