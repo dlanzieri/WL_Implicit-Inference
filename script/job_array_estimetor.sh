@@ -17,4 +17,4 @@
 module purge
 module load python cudnn/8.5.0.96-11.7-cuda
 
-python /gpfsdswork/projects/rech/ykz/ulm75uc/VMIM-vs-MSE-/script/train_estimator_array.py --total_steps=9000  --resnet='resnet18' --loss='train_compressor_vmim' --filename=job_$SLURM_ARRAY_TASK_ID
+python /gpfsdswork/projects/rech/ykz/ulm75uc/VMIM-vs-MSE-/script/train_estimator_array.py --total_steps=9000  --resnet='resnet18' --loss='train_compressor_mse' --filename=job_$SLURM_ARRAY_TASK_ID
