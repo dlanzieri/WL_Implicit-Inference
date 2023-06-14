@@ -2,11 +2,14 @@ from jax.lib import xla_bridge
 print(xla_bridge.get_backend().platform)
 from functools import partial
 import jax
+import argparse
 from numpyro.handlers import seed, condition
 from sbi_lens.simulator import lensingLogNormal
 from sbi_lens.simulator.utils import get_reference_sample_posterior_full_field
 import numpyro
 import logging
+import pickle
+from numpyro.handlers import seed, condition, trace
 logger = logging.getLogger()
 class CheckTypesFilter(logging.Filter):
     def filter(self, record):
@@ -14,11 +17,13 @@ class CheckTypesFilter(logging.Filter):
 logger.addFilter(CheckTypesFilter())
 'unset XLA_FLAGS'
 
-import pickle
 
-
-from numpyro.handlers import seed, condition, trace
-
+###################
+parser = argparse.ArgumentParser()
+parser.add_argument("--seed", type=int, default=4)
+parser.add_argument("--filename", type=str, default='res' )
+args = parser.parse_args()
+###################
 
 model = partial(lensingLogNormal,
                 model_type='lognormal',
@@ -40,7 +45,11 @@ m_data = model_trace['y']['value']
 
 init_values = {k: model_trace[k]['value'] for k in ['z', 'omega_c', 'sigma_8', 'omega_b', 'h_0', 'n_s', 'w_0']}
 
-
+###################
+key=jax.random.PRNGKey(3)
+subkey=jax.random.split(key, 200)
+key_par = subkey[args.seed]
+###################
 
 samples_ff = get_reference_sample_posterior_full_field(    
             run_mcmc=True,
@@ -55,13 +64,14 @@ samples_ff = get_reference_sample_posterior_full_field(
             max_tree_depth=6,
             step_size=1e-2,
             num_chains=1,
-            nb_loop=20, 
-            init_strat=numpyro.infer.init_to_value(values=init_values),
+            nb_loop=5, 
+init_strat=numpyro.infer.init_to_value(values=init_values),
             chain_method='vectorized',
-            key=jax.random.PRNGKey(3))
+            key=key_par)
 
 
-with open("posterior_full_field__"
-                    "{}N_{}ms_{}gpa_{}se.npy".format(
+
+with open("posterior_full_field_"
+                    "{}N_{}ms_{}gpa_{}se.npy".format(args.filename,
                        256, 10, 27, 0.26), "wb") as fp:
     pickle.dump(samples_ff, fp)
