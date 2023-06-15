@@ -3,7 +3,7 @@
 #SBATCH --job-name=name_of_the_job  
 #SBATCH --output=name_of_the_job%j.out     
 #SBATCH --error=name_of_the_job%j.out     
-#SBATCH --array=11-20
+#SBATCH --array=21-31
 #SBATCH --constraint v100-32g
 #SBATCH --qos=qos_gpu-t3
 #SBATCH --hint=nomultithread        
