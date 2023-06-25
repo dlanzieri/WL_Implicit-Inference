@@ -19,6 +19,7 @@
 
 \newcommand{\justine}[1]{{\color{cyan}JZ: #1}}
 \newcommand{\denise}[1]{{\color{red}DL: #1}}
+\newcommand{\FL}[1]{{\color{magenta}FL: #1}}
 
 \author{Denise Lanzieri \inst{1}
 \and
@@ -60,12 +61,45 @@ Université Paris-Saclay, Université Paris Cité, CEA, CNRS, AIM, 91191, Gif-su
                }
 
    \maketitle
-%
-%-------------------------------------------------------------------
 
+%-------------------------------------------------------------------
+%------------------------------------------------------------------
+%------------------------------------------------------------------
+%------------------------------------------------------------------
 \section{Introduction}
-\section{Theory Background}
-\subsection{Weak lensing formalism}
+%------------------------------------------------------------------
+%------------------------------------------------------------------
+%------------------------------------------------------------------
+%------------------------------------------------------------------
+\section{Inference over forward simulation models}
+With the increased statistical power of stage IV surveys, our cosmological analysis should not rely on the measurement of sub-optimal summary statistics, enable to fully account for the non-Gaussian information in the lensing field at
+the scales that future surveys will be able to access. One of the goals of this paper is to present a forward model of the full observables to directly extract information from the raw pixel data, instead of attempting to evaluate analytically the likelihood of any summary statistics and in doing so, preserve all the available information. 
+This approach has the advantage of easily incorporating systematic effects or easily combining multiple cosmological probes by joint simulations.  
+In this context, the simulator of the observables becomes our physical model, in which every single component is tractable. These models, also referred to as \textit{probabilistic program}, take as input the parameters $\bm{\theta}$, sample some \textit{latent variables} $z_i \sim p_i(z_i|\bm \theta, z_{<i})$, and generates the output $\bm x \sim p(\bm d|\bm \theta)$, with $\bm{d}$ observations. At this point, we can infer both the latent variables or the parameter $\bm{\theta}$. However,  the marginal likelihood is typically intractable:
+\begin{equation}
+    p(\bm{x}|\bm{\theta})=\int p(\bm{x},\bm{z}|\bm{\theta}) d\bm{z}=\int p(\bm{x}|\bm{z},\bm{\theta})p(\bm{z}|\bm{\theta}) d\bm{z}.
+\end{equation}
+To bypass this limitation, while keeping exploring the full information content of data, we have different approaches. Although in literature these approaches are usually referred to in different ways, in this work hereafter we will make the following distinction 
+%--------------------------------------------------------------------
+\paragraph{\textbf{Explicit inference}} referring to all Likelihood-based inference approaches. 
+In the context of the forward model and full field analysis, fall in this category the Bayesian Hierarchical Model (BHM).
+As a Bayesian forward approach it involves using a given model to predict observations and then comparing these predictions with real observations to infer the parameters of the model. The \textit{hierarchical} nature of this methodology comes from the fact that a complex inference task, such as the weak lensing inference task, can be broken down into several hierarchies of elements, which can be understood and from which we can sample from \citep{heavens2018bayesian}. However, performing a global analysis on complex and large datasets, such as what could be a lensing dataset, is not feasible. Therefore, the idea of dividing the global analysis into several subgroups, analyzing them in multiple steps, and using the output of each of those as input for the next one.  
+This approach involves treating the simulator as a probabilistic model and performing inference over the joint posterior:
+\begin{equation}
+        p(\bm{\theta},\bm{z}|\bm{x})\propto  p(\bm{x},\bm{z}|\bm{\theta}) p(\bm{z}|\bm{\theta}).
+\end{equation}
+%--------------------------------------------------------------------
+\paragraph{\textbf{Implicit inference}} referring to all the approaches not relying on an analytical model to describe the signal, but rather on learning the likelihood from simulations. This second class of approaches involves treating the simulator as a black box with only the ability to sample from the joint distribution
+\begin{equation}
+    (\bm{x}, \bm{\theta})\sim p(\bm{x}, \bm{\theta}).
+\end{equation}
+Within this class of methods, we can distinguish between more traditional methods such as the Approximate Bayesian Computation (ABC), a rejection-criteria based approach, which approximate the likelihood comparing the simulations with data, and the Density Estimation Likelihood Free Inference (DELFI), methods, where the inference task is approached as a density estimation problem.
+Ultimately, for a given simulation model, the two approaches should converge to the same posterior.
+%------------------------------------------------------------------
+%------------------------------------------------------------------
+%------------------------------------------------------------------
+%------------------------------------------------------------------
+\section{The SBILens framework}
 \subsection{Lognormal Modeling}
 For several cosmological purposes, the non-Gaussian field can be modeled as a Lognormal field \citep{coles1991lognormal,bohm2017bayesian}.
 This model has the advantage of offering the rapid generation of the matter or the convergence field while allowing the extraction of information beyond the Gaussian one. 
@@ -104,7 +138,7 @@ One of the advantages of modeling the convergence field through a lognormal mode
 \end{equation}
 with $P_{\ell}$ Legendre polynomial with order $\ell$. 
 
-Having defined the survey to reproduce in terms of galaxy number density, redshifts, and shape noise, we can sample the Lognormal random map $\kappa$.  using \autoref{Eq:log_norm_kappa} and \autoref{Eq:log_norm_corr}.  First, we need to compute the theoretical auto $C_{\ell}^{i}$ and cross-correlated $C_{\ell}^{ij}$ angular power spectrum for each tomographic bin. These theoretical predictions are computed using the public library  \href{https://github.com/DifferentiableUniverseInitiative/jax_cosmo}{\texttt{jax-mosmo}}. Then the 1-D $C_{\ell}$ are projected into 2-D grids of the same size as the desired final convergence maps and the Gaussian covariances $\xi^{ij}_y(\theta)$ are computed through \autoref{Eq:log_norm_corr}. To take into account the cross-correlation between different redshift bins, we first stack together the vector $\xi^{ij}_y(\theta)$ to build a covariance matrix having the auto-correlation on the main diagonal and the cross-correlation off-diagonal. Then we perform an eigenvalues decomposition. This decomposition enables us to decorrelate the maps
+Having defined the survey to reproduce in terms of galaxy number density, redshifts, and shape noise, we can sample the Lognormal random map $\kappa$.  using \autoref{Eq:log_norm_kappa} and \autoref{Eq:log_norm_corr}.  First, we need to compute the theoretical auto $C_{\ell}^{i}$ and cross-correlated $C_{\ell}^{ij}$ angular power spectrum for each tomographic bin. These theoretical predictions are computed using the public library  \href{https://github.com/DifferentiableUniverseInitiative/jax_cosmo}{\texttt{jax-cosmo}}. Then the 1-D $C_{\ell}$ are projected into 2-D grids of the same size as the desired final convergence maps and the Gaussian covariances $\xi^{ij}_y(\theta)$ are computed through \autoref{Eq:log_norm_corr}. To take into account the cross-correlation between different redshift bins, we first stack together the vector $\xi^{ij}_y(\theta)$ to build a covariance matrix having the auto-correlation on the main diagonal and the cross-correlation off-diagonal. Then we perform an eigenvalues decomposition. This decomposition enables us to decorrelate the maps
 
 \begin{equation}
     \bm{\Sigma}= 
@@ -115,8 +149,9 @@ Having defined the survey to reproduce in terms of galaxy number density, redshi
     C_{\ell}^{n1} & C_{\ell}^{n2} & \cdots & C_{\ell}^{nn} 
     \end{pmatrix}
 \end{equation}
+%------------------------------------------------------------------
+%------------------------------------------------------------------
 %--------------------------------------------------------------------
-\section{Simulations}
 \subsection{Data generation}
 Our analysis is based on a standard flat $\Lambda$CDM cosmological model, with the following parameters: the baryonic density fraction $\Omega_b$, the total matter density fraction $\Omega_m$, the Hubble parameter $h_0$, the spectral index $n_s$, the amplitude of the primordial power spectrum $\sigma_8$ and the dark energy parameter $w_0$. The priors used in the simulations and in inference process are listed in \autoref{tab:prior}, according to \citet{zhang2022transitioning}.
 The simulation process proceeds as follows. Given the cosmological parameters, we compute the theoretical power- and cross- spectra using the public library \href{https://github.com/DifferentiableUniverseInitiative/jax_cosmo}{\texttt{jax-cosmo}} \citep{Campagne_2023}. To calculate the 
@@ -144,8 +179,9 @@ Each map is reproduced on a regular grid with dimensions of $256^2$ pixels and c
 	\end{tabular}
 	\label{tab:prior}
 \end{table}
-%--------------------------------------------------------------------
-
+%------------------------------------------------------------------
+%------------------------------------------------------------------
+%------------------------------------------------------------------
 \subsection{Noise and survey setting}
 We conduct a tomographic study to reproduce the redshift distribution and the expected noise for the LSST-Y10 data release.
 Specifically, following \citet{zhang2022transitioning}, we model the underlying redshift distribution using the parametrized Smail distribution \citep{smail1995deep}:
@@ -183,32 +219,14 @@ Figure  xx illustrates the resulting source redshift distribution. \autoref{tab:
      \label{fig:redshift_distribution}
 \end{figure}
 %--------------------------------------------------------------------
-\section{Inference over forward simulation models}
-With the increased statistical power of stage IV surveys, our cosmological analysis should not rely on the measurement of sub-optimal summary statistics, enable to fully account for the non-Gaussian information in the lensing field at
-the scales that future surveys will be able to access. One of the goals of this paper is to present a forward model of the full observables to directly extract information from the raw pixel data, instead of attempting to evaluate analytically the likelihood of any summary statistics and in doing so, preserve all the available information. 
-This approach has the advantage of easily incorporating systematic effects or easily combining multiple cosmological probes by joint simulations.  
-In this context, the simulator of the observables becomes our physical model, in which every single component is tractable. These models, also referred to as \textit{probabilistic program}, take as input the parameters $\bm{\theta}$, sample some \textit{latent variables} $z_i \sim p_i(z_i|\bm \theta, z_{<i})$, and generates the output $\bm x \sim p(\bm d|\bm \theta)$, with $\bm{d}$ observations. At this point, we can infer both the latent variables or the parameter $\bm{\theta}$. However,  the marginal likelihood is typically intractable:
-\begin{equation}
-    p(\bm{x}|\bm{\theta})=\int p(\bm{x},\bm{z}|\bm{\theta}) d\bm{z}=\int p(\bm{x}|\bm{z},\bm{\theta})p(\bm{z}|\bm{\theta}) d\bm{z}.
-\end{equation}
-To bypass this limitation, while keeping exploring the full information content of data, we have different approaches. Although in literature these approaches are usually referred to in different ways, in this work hereafter we will make the following distinction 
-\paragraph{\textbf{Explicit inference}} referring to all Likelihood-based inference approaches. 
-In the context of the forward model and full field analysis, fall in this category the Bayesian Hierarchical Model (BHM).
-As a Bayesian forward approach it involves using a given model to predict observations and then comparing these predictions with real observations to infer the parameters of the model. The \textit{hierarchical} nature of this methodology comes from the fact that a complex inference task, such as the weak lensing inference task, can be broken down into several hierarchies of elements, which can be understood and from which we can sample from \citep{heavens2018bayesian}. However, performing a global analysis on complex and large datasets, such as what could be a lensing dataset, is not feasible. Therefore, the idea of dividing the global analysis into several subgroups, analyzing them in multiple steps, and using the output of each of those as input for the next one.  
-This approach involves treating the simulator as a probabilistic model and performing inference over the joint posterior:
-\begin{equation}
-        p(\bm{\theta},\bm{z}|\bm{x})\propto  p(\bm{x},\bm{z}|\bm{\theta}) p(\bm{z}|\bm{\theta}).
-\end{equation}
-\paragraph{\textbf{Implicit inference}} referring to all the approaches not relying on an analytical model to describe the signal, but rather on learning the likelihood from simulations. This second class of approaches involves treating the simulator as a black box with only the ability to sample from the joint distribution
-\begin{equation}
-    (\bm{x}, \bm{\theta})\sim p(\bm{x}, \bm{\theta}).
-\end{equation}
-Within this class of methods, we can distinguish between more traditional methods such as the Approximate Bayesian Computation (ABC), a rejection-criteria based approach, which approximate the likelihood comparing the simulations with data, and the Density Estimation Likelihood Free Inference (DELFI), methods, where the inference task is approached as a density estimation problem.
-
-
-Ultimately, for a given simulation model, the two approaches should converge to the same posterior.
 %--------------------------------------------------------------------
+%--------------------------------------------------------------------
+%------------------------------------------------------------------
+\section{Experiment}
 \subsection{Explicit Inference}
+%--------------------------------------------------------------------
+%--------------------------------------------------------------------
+%--------------------------------------------------------------------
 \subsubsection{Power spectrum}
 Although this is not a full-field approach, we aim to compare the latest to a more standard approach. 
 To obtain the probability distribution of the cosmological parameters using a summary-statistics-methods, we focus on the 2-point statistics, specifically, on the angular power spectra $C_{\ell}$.
@@ -227,6 +245,9 @@ To compute the expected theoretical predictions $\bm{\mu}(\bm{\theta})$ we use t
 \end{equation}
 where $f_{sky}$ is the fraction of sky observed by the survey, and $n_s$ is the number density of galaxies. 
 To obtain the data vector $\bm{d}$, containing the auto- and the cross-power spectra for each tomographic bin, we use the \href{https://lenstools.readthedocs.io/en/latest/lenstool} {\texttt{LensTools}} package \citep{2016A&C....17...73P} on a single noisy simulated map. 
+%--------------------------------------------------------------------
+%--------------------------------------------------------------------
+%--------------------------------------------------------------------
 \subsubsection{Full field and HMC}
 The following steps outline our methods. We draw cosmological parameters from the priors illustrated in \autoref{tab:prior}. Given values for the cosmological parameters, we generate the log-normal field as described in the previous sections. So, in other words, the simulator becomes the physical model generating a non-linear representation of the convergence map. The measure of the convergence for each pixel and for each bin predicted from the physical model will differ from the ones from real observations due to the noise.  This is taken into account in the likelihood. Specifically, for LSST Y10 the number of galaxies for each pixel should be sufficiently high that for the central limit theorem, we can assume that the observation is characterized by a Gaussian noise $\sigma_n^2=\sigma_e^2/N_s$, with $N_s$ the total number of source galaxies per bin and pixel. Given $\sigma_n^2$ the variance of this Gaussian likelihood, its form in the log form can be expressed as:
 \begin{equation}
@@ -235,14 +256,21 @@ The following steps outline our methods. We draw cosmological parameters from th
     =\sum_i^{N_{pix}} \sum_{j}^{N_{bins}}\frac{[\kappa_{i,j}-\kappa^{obs}_{i,j}]^2}{2\sigma_n^2}
 \end{equation}
 Not relying on any summary statistics, the full-field approach typically results in a high-dimensional problem, requiring more sophisticated statistical techniques. To sample the posterior distribution for $\bm{\theta}$, we use a Hamiltonian Monte Carlo (HMC) algorithm. The HMC algorithm is particularly helpful in high-dimensional spaces where a large number of steps are required to effectively explore the space. It improves the sampling process by using the information contained in the gradients to guide the sampling process. Since the code is implemented in Jax, the gradients are accessible via automatic differentiation. 
-
+%--------------------------------------------------------------------
+%--------------------------------------------------------------------
 %--------------------------------------------------------------------
 \subsection{Implicit Inference}
-
+%--------------------------------------------------------------------
+%--------------------------------------------------------------------
+%--------------------------------------------------------------------
+\subsubsection{Need for data compression}
+%--------------------------------------------------------------------
+%--------------------------------------------------------------------
+%--------------------------------------------------------------------
 \subsubsection{Benchmark compression scheme}
 There are several approaches available for training the compressor, and this section aims to provide an overview of these different methods used in previous works. 
 In \autoref{Sec:results}, we will compare the outcomes of these various strategies. Specifically, using the same prior $p(\bm {\theta})$ for the cosmological parameter $\bm{\theta}$ and the simulator described in \autoref{Sec:results}, which samples $\bm {x}$ from $p(\bm{x}| \bm{\theta})$ and produces a set of mock observations $\bm{x_0}$, we will compare the posterior distribution $p(\bm{\theta}|\bm{x})$ obtained form each inference pipeline. This analysis will help to determine the optimal compression strategy, enabling us to extract the maximum amount of information possible given the fixed cosmological parameters.
-
+%--------------------------------------------------------------------
 \paragraph{\textcolor{violet}{Mean Square Error (MSE)}}
 One of the most straightforward approaches adopted to train a Neural Network consists of minimizing the $L_2$ norm, or Mean Square Error (MSE). In this section, we demonstrate that this approach is equivalent to training the model to estimate the mean of the posterior distribution, namely:
 \begin{equation}\label{Eq:mean_mse}
@@ -325,20 +353,41 @@ we obtain
 %--------------------------------------------------------------------
 \paragraph{\textcolor{violet}{Gaussian Negative Log-Likelihood (GNLL)}}
 %--------------------------------------------------------------------
-A third possible scenario consists in minimizing the Negative Log Likelihood. First of all, let us stating that minimizing the negative log likelihood is equivalent to the Maximum Likelihood Estimation (MLE). The proof of this statement is straightforward. As suggested by the name, this optimization problem involves maximizing the likelihood distribution $p(\bm{x}|\bm{\theta})$
-\begin{equation}
-    \bm{\theta}_{ML}= \operatorname*{argmax}_{\bm{\theta}}p(\bm{x}|\bm{\theta}).
-\end{equation}
-where
-\begin{equation}
-    p(\bm{x}|\bm{\theta})= \prod_{i-1}^n p(x_i|\bm{\theta}).
-\end{equation}
-Applying the log function in this context is done for several reasons, e.g. reducing the potential of underflow when the likelihoods are small or allowing the conversion of a product into a summation. 
-Then, remembering that $-\log$ is strictly decreasing, the following are equivalent:
-\begin{equation}
-    \operatorname*{argmax}_{\bm{\theta}}\sum_{i-1}^n \log{p(x_i|\bm{\theta})}= \operatorname*{argmin}_{\bm{\theta}}-\sum_{i-1}^n \log{p(x_i|\bm{\theta})}.
-\end{equation}
+\FL{I think we should have this section after the VMIM}
 
+\FL{Recognizing that the uncertainty on different cosmological parameters will vary, a third
+class of inverse variance weighted MSE was proposed in \cite{fluri2018cosmological} with the idea of
+ensuring that each parameter contributes fairly to the overall loss by taking into account its uncertainty. The loss function typically takes the following form:
+\begin{equation}
+    \mathcal{L} = \frac{1}{2} \log(|\Sigma|) + \frac{1}{2}(t - \theta)^t \Sigma^{-1} (t - \theta) 
+\end{equation}
+where $t$ is the summary statistics and $\Sigma$ is the covariance matrix of representing the uncertainty on the cosmological parameters $\theta$. Both $t$ and $\Sigma$ can be outputs of the compression network, i.e. $f_\theta(x)=(t, \Sigma)$.
+
+One recognizes here the expression of a Gaussian probability function, and this expression can thus be straightforwardly related to the VMIM case by simply assuming a Gaussian distribution as the variational approximation for the posterior $q(\theta | x) = \mathcal{N}(\theta; t, \Sigma)$.
+
+This means that this loss function is actually sub-optimal for two reasons:
+\begin{itemize}
+    \item The summary extracted by the neural network $t$ is, similarly to the MSE case only an estimate of the mean of 
+    the posterior distribution, which is not guaranteed to be sufficient.
+    \item Because of the Gaussian variational assumption, the variational posterior can potentially be biased with respect to the true posterior, and thus the mean of this Gaussian approximation may be biased with respect to the true posterior mean.
+\end{itemize}
+ A simple MSE would thus seem to be preferable.
+}
+% A third possible scenario consists in minimizing the Negative Log Likelihood. First of all, let us stating that minimizing the negative log likelihood is equivalent to the Maximum Likelihood Estimation (MLE). The proof of this statement is straightforward. As suggested by the name, this optimization problem involves maximizing the likelihood distribution $p(\bm{x}|\bm{\theta})$
+% \begin{equation}
+%     \bm{\theta}_{ML}= \operatorname*{argmax}_{\bm{\theta}}p(\bm{x}|\bm{\theta}).
+% \end{equation}
+% where
+% \begin{equation}
+%     p(\bm{x}|\bm{\theta})= \prod_{i-1}^n p(x_i|\bm{\theta}).
+% \end{equation}
+% Applying the log function in this context is done for several reasons, e.g. reducing the potential of underflow when the likelihoods are small or allowing the conversion of a product into a summation. 
+% Then, remembering that $-\log$ is strictly decreasing, the following are equivalent:
+% \begin{equation}
+%     \operatorname*{argmax}_{\bm{\theta}}\sum_{i-1}^n \log{p(x_i|\bm{\theta})}= \operatorname*{argmin}_{\bm{\theta}}-\sum_{i-1}^n \log{p(x_i|\bm{\theta})}.
+% \end{equation}
+
+%--------------------------------------------------------------------
 \paragraph{\textcolor{violet}{Information Maximising Neural Networks (IMNNs)}}
 %--------------------------------------------------------------------
 \paragraph{\textcolor{violet}{Variational Mutual Information Maximization (VMIM)}}
@@ -370,26 +419,26 @@ Since the entropy of the cosmological parameters is constant for a fixed trainin
 \begin{equation}
     \operatorname*{argmax}_{\bm {\phi}, \bm {\phi}'}\mathbb{E}_{p(\bm {d}, \bm {\theta})} [\log{q(\bm {\theta} |F_{\bm {\phi}}(\bm {d}) ; \bm{\phi}')}].
 \end{equation}
-
-\subsubsection{Inference strategy}
 %--------------------------------------------------------------------
-To evaluate compression strategies, we propose a comparison of posteriors $p(\theta|s(x))$, where $s(x)$ is the summary statistic. Indeed, the more informative the summary statistics, the closer the posterior $p(\theta | s(x))$ is to the true posterior $p (\theta | x)$. To this end, we propose to do Neural Posterior Estimation (NPE) that aims to directly learn from simulations the posterior distribution
+%--------------------------------------------------------------------
+%--------------------------------------------------------------------
+\subsubsection{Inference strategy}
 
+To evaluate compression strategies, we propose a comparison of posteriors $p(\theta|s(x))$, where $s(x)$ is the summary statistic. Indeed, the more informative the summary statistics, the closer the posterior $p(\theta | s(x))$ is to the true posterior $p (\theta | x)$. To this end, we propose to do Neural Posterior Estimation (NPE) \justine{describe a bit more what it is, sbi method etc} that aims to directly learn from simulations the posterior distribution
 \begin{equation}
     p(\theta | x) \propto \int p(x | \theta, z) p(z|\theta) p(\theta) dz\,.
 \end{equation}
-
-To achieve this, we train a  conditional Normalizing Flow (NF) $p_{\varphi} (\theta | s(x)) $ by minimizing the negative log-probability in $(\theta, s(x))$ space:
-
+To achieve this, we train a  conditional Normalizing Flow (NF) \justine{as proposed by ... (REF) / neural simulation-based inference} $p_{\varphi} (\theta | s(x)) $ by minimizing the negative log-probability in $(\theta, s(x))$ space:
 \begin{equation}
-    \mathcal{L}_{\rm NLL} = \mathbb{E}_{p(\theta, s(x))} \left[ - \log p_{\varphi} (\theta | s(x))  \right],
+    \mathcal{L}_{\rm NLL} = \mathbb{E}_{p(\theta, s(x))} \left[ - \log p_{\varphi} (\theta | s(x))  \right].
     \label{eq:nll}
 \end{equation}
+
+\justine{talk about evaluation of approx posterior at a given obs}
 
 By learning the posterior distribution for each statistic, we capture the significance of each statistic. This approach allows us to use the posterior distribution as a fair benchmark for comparison.
 In particular, for each statistic we use the same NF architecture which is a RealNVP (REF) with 4 coupling layers, shift and scale parameters are learned using a neural network with 2 layers of 128 neurons, activation functions are $silu$ (REF).
 
-% talk about evaluation of approx posterior at a given obs
 
 \begin{center}
 \begin{table*}
