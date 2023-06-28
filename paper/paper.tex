@@ -101,66 +101,79 @@ Ultimately, for a given simulation model, the two approaches should converge to 
 %------------------------------------------------------------------
 \section{The SBILens framework}
 \subsection{Lognormal Modeling}
-For several cosmological purposes, the non-Gaussian field can be modeled as a Lognormal field \citep{coles1991lognormal,bohm2017bayesian}.
-This model has the advantage of offering the rapid generation of the matter or the convergence field while allowing the extraction of information beyond the Gaussian one. 
-Although several studies demonstrated that this model fails in describing the 3D field, it properly describes the 2D convergence field.
-
-
-
-Assume a multivariate Gaussian distribution G described by the vector elements of mean $\mu_i$ and covariance matrix $\xi_g^{ij}$, we can define the density contrast $\delta(\bm{x})$ as a shifted lognormal random field :
-% The distribution of the convergence $\kappa_i$ in the $i-$th redshift bin can be modeled as:
-\begin{equation}
-    \delta(\bm{x})=\lambda[e^{g(\bm{x})}-1]. 
-\end{equation}\label{Eq:log_norm_kappa}
+For various cosmological applications, the non-Gaussian field can be modeled as a Lognormal field \citep{coles1991lognormal,bohm2017bayesian}.
+This model offers the advantage of generating the matter or convergence field rapidly while allowing the extraction of information beyond the two-point statistics. 
+Although studies demonstrated that this model fails in describing the 3D field \citep{klypin2018density}, it properly describes the 2D convergence field \citep{clerkin2017testing, xavier2016improving}.
+Assuming a simulated Gaussian convergence map $\kappa_g$, whose statistical properties are fully described by its power spectrum $C_{\ell}$ we know that this model is not a suitable representation of late-time and more evolved structures. One potential solution is to find a transformation $f(\kappa_g)$ of this map that captures the non-Gaussian features in the convergence field. In doing so, it is crucial to ensure that the transformed map maintains the correct mean and variance, effectively recovering the correct two-point statistics.
+Denoting $\mu$ and $\sigma_g^2$ the mean and covariance matrix of $\kappa_g$ respectively, we can define the transformed convergence $\kappa_{ln}$ as a shifted lognormal random field:
 \begin{equation}\label{Eq:log_norm_kappa}
-    \kappa_{i}=e^{y_i}-\lambda_i. 
+    \kappa_{ln}=e^{\kappa_{g}}-\lambda, 
 \end{equation}
-where $\lambda_i$ is a free parameter defining the shift of the lognormal distribution.  The density contrast $\delta(\bm{x})$ is fully defined by the shift parameter $\lambda$, the mean of the associated Gaussian field $\mu_i$, and its variance $\sigma_g^2\equiv \xi_g$. That fact that we require $<\delta>=0$ implies that the Gaussian field satisfies the following relation:
-\begin{equation}
-    \mu_g=-\frac{\sigma_g^2}{2}.
-\end{equation}
-The parameter $\lambda_i$, is also known as \textit{minimum convergence
-parameter}, since defines the lowest values for all possible values $\kappa$ being the lognormal defined of for positive values. We can see from \autoref{Eq:log_norm_kappa} that th ereandom variables $\kappa_i$ is fully defined by the shift parameter $\lambda_i$, the mean of the associated gaussian variables $\mu_i$, and its variance $\sigma_i^2\equiv \xi_g^{ii}$. 
-
- The modelling for the shift parameter can be approached in different ways.  determine
-For example, $\lambda$ can be determined following the approach of \citet{xavier2016improving} , i.e.  matching moments of the distribution, or following the approach of \citet{hilbert2011cosmic}, i.e. fitting it as a free parameter. In general, it is a parameter dependent from the redshift, the cosmology, and the scale of the field at which the smoothing is applied.
-In this work, we choose the derived $\lambda$ using Cosmomentum.
-The lognormal $\xi^{ij}_{ln}$ and the associated Gaussian covariances $ \xi^{ij}_g$ are related via :
+where $\lambda$ is a free parameter that determines the shift of the lognormal distribution. The convergence $\kappa$ in a given redshift bin is fully determined by the shift parameter $\lambda$, the mean $\mu$ of the associated Gaussian field $\kappa_g$, and its variance $\sigma_{g}^2\equiv \xi_g$.
+The correlation of the lognormal field, denoted as $\xi_{ln}$, is also a function of these variables and is related to $\xi^{ij}_g$ through the following equations:
 \begin{align}
     \xi^{ij}_{ln}(\theta) & \equiv \lambda_i \lambda_j (e^{ \xi^{ij}_g(\theta)}-1) \nonumber \\ 
     \xi^{ij}_g(\theta)&=\log{\left[ \frac{\xi^{ij}_{ln}(\theta)}{\lambda_i \lambda_j}+1\right ]}. \label{Eq:log_norm_corr}
 \end{align}
-%Note for Denise: The lambda_i and the \lambda_j in Eq:log_norm_corr are the same parameters defined in Eq:log_norm_kappa only for Gaussian distribution with mean zero. Otherwise, these parameters should be defined as alpha_i and alpha_j where alpha_i= <y>+lambda_i. See Xavier et al. 2015 for a detailed description. 
+Here $i$ and $j$ define a pair of redshift bins.
+The parameter $\lambda$, also known as \textit{minimum convergence
+parameter}, defines the lowest values for all possible values of $\kappa$.
+The modeling of the shift parameter can be approached in various ways. For example, it can be determined by matching moments of the distribution \citep{xavier2016improving} or by treating it as a free parameter \citep{hilbert2011cosmic}. In general, the value of $\lambda$ depends on the redshift, cosmology, and the scale of the field at which smoothing is applied.
 
-One of the advantages of modeling the convergence field through a lognormal model is the fact that it enables the constraining of the convergence field in different redshift bins simultaneously while taking into account the correlation between the bins. Indeed, in the Fourier space, the power spectrum of $y$ is defined as:
-\begin{equation}\label{Eq:log_norm_cls}
-    C^{ij}_y(\ell)=2\pi \int_0^{\pi} d\theta \sin{\theta}P_{\ell}(\cos{\theta})\xi^{ij}_{y}(\theta)
+While it is straightforward to simulate a single map, if we want to constrain the convergence map in different redshift bins, an additional condition must be met. The covariance of the map should recover the correct angular power spectrum:
+\begin{equation}\label{power_spectrum_definition}
+    \left \langle \tilde{\kappa}^{(i)}_{ln} (\ell)\tilde{\kappa}^{(j)}_{ln}(\ell')\right \rangle =C^{ij}_{ln}(\ell)\delta^{K}(\ell-\ell')
 \end{equation}
-with $P_{\ell}$ Legendre polynomial with order $\ell$. 
+where $ C^{ij}_{ln}(\ell)$ is the power spectrum of $\kappa_{ln}$ in Fourier space, defined as:
+\begin{equation}\label{Eq:log_norm_cls}
+    C^{ij}_{ln}(\ell)=2\pi \int_0^{\pi} d\theta \sin{\theta}P_{\ell}(\cos{\theta})\xi^{ij}_{ln}(\theta)
+\end{equation}
+and $P_{\ell}$ is the Legendre polynomial of order $\ell$. 
+Using the lognormal model, we can simultaneously constrain the convergence field in different redshift bins while considering the correlation between the bins, as described by \autoref{Eq:log_norm_corr}.
 
-Having defined the survey to reproduce in terms of galaxy number density, redshifts, and shape noise, we can sample the Lognormal random map $\kappa$.  using \autoref{Eq:log_norm_kappa} and \autoref{Eq:log_norm_corr}.  First, we need to compute the theoretical auto $C_{\ell}^{i}$ and cross-correlated $C_{\ell}^{ij}$ angular power spectrum for each tomographic bin. These theoretical predictions are computed using the public library  \href{https://github.com/DifferentiableUniverseInitiative/jax_cosmo}{\texttt{jax-cosmo}}. Then the 1-D $C_{\ell}$ are projected into 2-D grids of the same size as the desired final convergence maps and the Gaussian covariances $\xi^{ij}_y(\theta)$ are computed through \autoref{Eq:log_norm_corr}. To take into account the cross-correlation between different redshift bins, we first stack together the vector $\xi^{ij}_y(\theta)$ to build a covariance matrix having the auto-correlation on the main diagonal and the cross-correlation off-diagonal. Then we perform an eigenvalues decomposition. This decomposition enables us to decorrelate the maps
-
-\begin{equation}
+ In the SbiLens framework, the sampling of the convergence maps can be described as follows. 
+First, we define the survey in terms of galaxy number density, redshifts, and shape noise.  Then, we compute the theoretical auto-angular power spectrum $C^{ii}(\ell)$ and cross-angular power spectrum $C^{ij}(\ell)$ for each tomographic bin. These theoretical predictions are calculated using the public library \href{https://github.com/DifferentiableUniverseInitiative/jax_cosmo}{\texttt{jax-cosmo}}. 
+Next, we project the one-dimensional $C(\ell)$ onto two-dimensional grids with the desired final convergence map size. Afterwards, we compute the Gaussian correlation functions $\xi^{ij}_g(\theta)$ using \autoref{Eq:log_norm_corr}.
+ % To take into account the cross-correlation between different redshift bins, 
+ To sample the convergence field in a specific redshift bin while considering the correlation with other bins, we use \autoref{power_spectrum_definition}. 
+We construct the covariance matrix $\bm{\Sigma}$ of the random field $\bm{\kappa}$, where $\bm{\kappa}$ represents the vector of convergence maps at different redshifts as follows:
+ \begin{equation}
     \bm{\Sigma}= 
     \begin{pmatrix}
     C_{\ell}^{11} & C_{\ell}^{12} & \cdots & C_{\ell}^{1n} \\
     C_{\ell}^{21} & C_{\ell}^{22} & \cdots & C_{\ell}^{2n} \\
     \vdots  & \vdots  & \ddots & \vdots  \\
     C_{\ell}^{n1} & C_{\ell}^{n2} & \cdots & C_{\ell}^{nn} 
-    \end{pmatrix}
+    \end{pmatrix}.
 \end{equation}
+To sample more efficiently, we perform an eigenvalue decomposition of $\bm{\Sigma}$ to obtain a new matrix $\tilde{\bm{\Sigma}}$:
+\begin{equation}
+    \tilde{\bm{\Sigma} }=\bm{Q}\bm{\Lambda}^{1/2}\bm{Q}^{T}
+\end{equation}
+where $\bm{Q}$ and $\bm{\Lambda}$ are the eigenvectors and eigenvalues of $\bm{\Sigma}$, respectively.
+Next, we sample the Gaussian random maps $\bm{\kappa_g}$ using the equation:
+\begin{equation}
+     \bm{\kappa_g}=\bm{Z}*\tilde{\bm{\Sigma} }
+\end{equation}
+where $\bm{Z}$ represents the latent variables of the simulator.
+Finally, we transform the Gaussian map $\kappa_g$ into a LogNormal field using \autoref{Eq:log_norm_kappa}.
+
+ 
+
+
+
 %------------------------------------------------------------------
 %------------------------------------------------------------------
 %--------------------------------------------------------------------
 \subsection{Data generation}
-Our analysis is based on a standard flat $\Lambda$CDM cosmological model, with the following parameters: the baryonic density fraction $\Omega_b$, the total matter density fraction $\Omega_m$, the Hubble parameter $h_0$, the spectral index $n_s$, the amplitude of the primordial power spectrum $\sigma_8$ and the dark energy parameter $w_0$. The priors used in the simulations and in inference process are listed in \autoref{tab:prior}, according to \citet{zhang2022transitioning}.
-The simulation process proceeds as follows. Given the cosmological parameters, we compute the theoretical power- and cross- spectra using the public library \href{https://github.com/DifferentiableUniverseInitiative/jax_cosmo}{\texttt{jax-cosmo}} \citep{Campagne_2023}. To calculate the 
-lognormal shift parameter, we adopt the \texttt{Cosmomentum} code \citep{friedrich2018density, friedrich2020primordial}, which utilizes perturbation theory to compute the cosmology-dependent shift parameters. It should be noted that the calculation of the shift parameters is based on a window function, while our pixels are rectangular. Following \citet{boruah2022map}, we compute the shift parameters at a characteristic scale, $R=\Delta L/\pi$  with $\Delta L$, the resolution of the pixels.  Moreover, as pointed out by \citet{boruah2022map}, this perturbation theory-based approach may not provide accurate results at small scales. However, since the main objective of this paper is to compare different compression strategies, we are not concerned about the potential implications of this approximation. In future applications of the presented inference pipeline, the simulation procedure will be based on N-body simulations.
+Our analysis is based on a standard flat $\Lambda$CDM cosmological model,  which includes the following parameters: the baryonic density fraction $\Omega_b$, the total matter density fraction $\Omega_m$, the Hubble parameter $h_0$, the spectral index $n_s$, the amplitude of the primordial power spectrum $\sigma_8$ and the dark energy parameter $w_0$. The priors used in the simulations and in the inference process are listed in \autoref{tab:prior}, following \citet{zhang2022transitioning}.
+To simulate our data, we develop the SbiLens package, which employs a Lognormal model to represent the convergence maps, as explained in the previous section. Specifically, the package uses the public library \href{https://github.com/DifferentiableUniverseInitiative/jax_cosmo}{\texttt{jax-cosmo}} \citep{Campagne_2023} to compute the theoretical power- and cross-spectra. The computation of the lognormal shift parameter is performed using the \texttt{Cosmomentum} code \citep{friedrich2018density, friedrich2020primordial}, which utilizes perturbation theory to compute the cosmology-dependent shift parameters. In Cosmomentum the calculation of the shift parameters assumes a cylindrical window function, while our pixels are rectangular. Following \citet{boruah2022map}, we compute the shift parameters at a characteristic scale, $R=\Delta L/\pi$, where $\Delta L$ represents the pixel resolution. The shift parameters at each redshift are computed using the fiducial cosmology values for $\Omega_b$, $h_0$, and $n_s$. To incorporate the cosmology dependence of $\lambda$ from $\Omega_c$, $\sigma_8$ and $w_0$, we calculate the shift for different points in the cosmological parameter space and then interpolate the shift values for other points in the parameter space.
+
+As mentioned by \citet{boruah2022map}, the perturbation theory-based approach may not provide accurate results at small scales. However, the main objective of this paper is to compare different inference strategies and we are not concerned with the potential implications of this approximation. 
+In future applications of the presented inference pipeline, the simulation procedure will be based on N-body simulations.
 
 
-Simulating the log-normal field for one single convergence map is a straightforward process. 
-However, for a tomographic analysis, as described in the previous section, it is necessary to consider the cross-correlation between different tomographic bins. To account for this correlation, we employ the sampling strategy described in Section X. \\
-Each map is reproduced on a regular grid with dimensions of $256^2$ pixels and covers an area of $10\times 10$ deg$^2$.
+Each map is reproduced on a regular grid with dimensions of $256 \times 256$ pixels and covers an area of $10\times 10$ deg$^2$.
 
 \begin{table}
 	\centering
@@ -184,18 +197,18 @@ Each map is reproduced on a regular grid with dimensions of $256^2$ pixels and c
 %------------------------------------------------------------------
 \subsection{Noise and survey setting}
 We conduct a tomographic study to reproduce the redshift distribution and the expected noise for the LSST-Y10 data release.
-Specifically, following \citet{zhang2022transitioning}, we model the underlying redshift distribution using the parametrized Smail distribution \citep{smail1995deep}:
+Following \citet{zhang2022transitioning}, we model the underlying redshift distribution using the parametrized Smail distribution \citep{smail1995deep}:
 \begin{equation}
     n(z)=\propto z^2 \exp{-(z/z_0)^{\alpha}},
 \end{equation}
-with $z_0=0.11$ and $\alpha=0.68$ and assuming a photometric redshift error $\sigma_z=0.05(1+z)$ as defined in the LSST DESC Science Requirements Document (SRD, \citet{mandelbaum2018lsst}).
+with $z_0=0.11$ and $\alpha=0.68$. We also assume a photometric redshift error $\sigma_z=0.05(1+z)$ as defined in the LSST DESC Science Requirements Document (SRD, \citet{mandelbaum2018lsst}).
 The galaxy sources are divided into 5 tomographic bins, each containing an equal number of galaxies. 
 For each redshift bin, we assume Gaussian noise with mean zero and variance given by
  \begin{equation}
      \sigma^2_n= \frac{\sigma_e^2}{A_{pix}n_{gal}},
  \end{equation}
 where we set the shape noise $\sigma_e = 0.26$ and the galaxy number density $n_{gal}=27$ arcmin$^{-2}$. Both the shape noise and galaxy number density values are obtained from SRD. The pixel area is given by $A_{pix}\approx$. 
-Figure  xx illustrates the resulting source redshift distribution. \autoref{tab:survey_spec} provides a summary of the survey specifications.
+\autoref{fig:redshift_distribution} illustrates the resulting source redshift distribution, and \autoref{tab:survey_spec} provides a summary of the survey specifications.
 \begin{table}
 	\centering
 	\caption{ LSST Y10 source galaxy specifications in our analysis. All values are based on the LSST DESC SRD.}
@@ -272,35 +285,13 @@ There are several approaches available for training the compressor, and this sec
 In \autoref{Sec:results}, we will compare the outcomes of these various strategies. Specifically, using the same prior $p(\bm {\theta})$ for the cosmological parameter $\bm{\theta}$ and the simulator described in \autoref{Sec:results}, which samples $\bm {x}$ from $p(\bm{x}| \bm{\theta})$ and produces a set of mock observations $\bm{x_0}$, we will compare the posterior distribution $p(\bm{\theta}|\bm{x})$ obtained form each inference pipeline. This analysis will help to determine the optimal compression strategy, enabling us to extract the maximum amount of information possible given the fixed cosmological parameters.
 %--------------------------------------------------------------------
 \paragraph{\textcolor{violet}{Mean Square Error (MSE)}}
-One of the most straightforward approaches adopted to train a Neural Network consists of minimizing the $L_2$ norm, or Mean Square Error (MSE). In this section, we demonstrate that this approach is equivalent to training the model to estimate the mean of the posterior distribution, namely:
-\begin{equation}\label{Eq:mean_mse}
-\left \langle \bm {\theta} \right \rangle_{p(\bm {\theta}|\bm{d})}=\operatorname*{argmin}_{\mathcal{F}(\bm{d})}\mathbb{E}_{p(\bm {\theta}|\bm {d})}[\left\Vert \bm {\theta}-\mathcal{F}(\bm{d})
- \right \Vert_{2}^{2}].
-\end{equation}
-To demonstrate \autoref{Eq:mean_mse}, we need to minimize the expected value of the $L_2$ norm with respect to $\mathcal{F}(\bm{d})$. Let us consider its derivative:
-\begin{align}\label{Eq:moment_1}
-   & \frac{\partial}{\partial \mathcal{F}(\bm{d}) }  \mathbb{E}_{p(\bm {\theta}|\bm{d}))}[(\bm {\theta}-\mathcal{F}(\bm{d}))^2] =  \\
-    &
-    \frac{\partial}{\partial \mathcal{F}(\bm{d}) }  \mathbb{E}_{p(\bm {\theta}|\bm {d})}[\bm {\theta}^2+\mathcal{F}(\bm{d})^2-2\bm {\theta}\mathcal{F}(\bm{d})] = \nonumber \\
-    &
-    \frac{\partial}{\partial \mathcal{F}(\bm{d}) }  [
-    \mathbb{E}_{p(\bm {\theta}|\bm {d})}[\bm {\theta}^2]+\mathcal{F}(\bm{d})^2-2\mathcal{F}(\bm{d})\mathbb{E}_{p(\bm {\theta}|\bm {d})}[\bm {\theta}]]= \nonumber \\
-    &2\mathcal{F}(\bm{d})-2 \mathbb{E}_{p(\bm {\theta}|\bm {d})}[\bm {\theta}]. \nonumber
-\end{align}
-Setting it equal to zero, we obtain the critical value:
+One of the most common approaches used to train a Neural Network is minimizing the $L_2$ norm or Mean Square Error (MSE).
+This approach has been widely adopted in various previous studies  \citep{ribli2018improved, lu2022simultaneously, lu2023cosmological}, where the loss function is typically formulated as follows:
 \begin{equation}
-    \mathcal{F}(\bm{d})= \mathbb{E}_{p(\bm {\theta}|\bm {d})}[\bm {\theta}]. 
+   \mathcal{L}=\frac{1}{N_{\theta}}(\bm{t}-\bm{\theta})^2.
 \end{equation}
-Considering the second-order derivative:
-\begin{equation}\label{Eq:minimum_mean}
-   \frac{\partial^2}{\partial^2 \mathcal{F}(\bm{d})}  \mathbb{E}_{p(\bm {\theta}|\bm {d})}[(\bm {\theta}-\mathcal{F}(\bm{d}))^2]=2, 
-\end{equation}
-we can assert that the critical value $\mathcal{F(\bm(\theta))}$ is also a minimum. 
-Since 
-\begin{equation}
-    \mathbb{E}_{p(\bm {\theta}|\bm {d})}[\bm {\theta}|\bm{d}]= \left \langle \bm {\theta} \right \rangle_{p(\bm {\theta}|\bm{d})}
-\end{equation}
-it follows from \autoref{Eq:minimum_mean} the \autoref{Eq:mean_mse}.
+Here $N_{\theta}$ represents the number of cosmological parameters, $\bm{t}$ denotes the summary statistics, and $\bm{\theta}$ corresponds to the data vector of the cosmological parameters. 
+However, it is important to note that this approach does not guarantee to recover the maximal information summary statistics. Although this can be true for fixed cosmology and Gaussian posterior, this has to be proved for more generic cases. Indeed, minimizing the $L_{1}$ norm is equivalent to training the model to estimate the mean of the posterior distribution. We prove this statement in XXX of XX.
 %--------------------------------------------------------------------
 \paragraph{\textcolor{violet}{Maximum Absolute Error (MAE)}}
 Instead of minimizing the $L_2$ norm, these approaches focus on the $L_1$ norm or Mean Absolute Error (MAE). In this section, we demonstrate that this is equivalent to training the model to estimate the median of the posterior distribution.
@@ -391,7 +382,7 @@ This means that this loss function is actually sub-optimal for two reasons:
 \paragraph{\textcolor{violet}{Information Maximising Neural Networks (IMNNs)}}
 %--------------------------------------------------------------------
 \paragraph{\textcolor{violet}{Variational Mutual Information Maximization (VMIM)}}
-The Variational Mutual Information Maximization (VMIM) has been used for cosmological inference problems for the first time by \citet{jeffrey2021likelihood}. This approach aims to maximize the mutual information $I(\bm{t}, \bm {\theta})$ between the cosmological parameters $\bm{\theta}$ and the summary statistics $\bm t$ by training a neural network with parameters $\phi$. 
+The Variational Mutual Information Maximization (VMIM) has been used for cosmological inference problems for the first time by \citet{jeffrey2021likelihood}. This approach aims to maximize the mutual information $I(\bm{t}, \bm {\theta})$ between the cosmological parameters $\bm{\theta}$ and the summary statistics $\bm t$ by training a neural network with parameters $\varphi$. 
 Mathematically, it is defined as follows:
 \begin{align}\label{Eq:mutual_information}
     I(\bm{t}, \bm {\theta}) &= D_{KL}(p(\bm {t}, \bm {\theta})||p(\bm {t})p(\bm {\theta})) \\ \nonumber
@@ -405,41 +396,56 @@ Mathematically, it is defined as follows:
 
 where $D_{KL}$ is the Kullback-Leibler divergence \citep{kullback1951information}, $p(\bm {t}, \bm {\theta})$ is the joint probability distribution of summary statistics and cosmological parameters, and $H(\bm {\theta})$ represents the \textit{entropy} of the distribution of cosmological parameters.  
 In other words, the mutual information measures the amount of information contained in the summary statistics $\bm t$ about the cosmological parameters $\bm \theta$.
-Given the original high-dimensional data vector $\bm d$, the information $\bm t$ is extracted using $\bm {t}=F_{\bm {\phi}}(\bm {d})$. 
-The goal is to find the parameters $\bm {\phi}$ that maximize the mutual information between the summary and cosmological parameters:
+Given the original high-dimensional data vector $\bm d$, the information $\bm t$ is extracted using $\bm {t}=F_{\bm {\varphi}}(\bm {d})$. 
+The goal is to find the parameters $\bm {\varphi}$ that maximize the mutual information between the summary and cosmological parameters:
 \begin{equation}
-   \bm {\phi}^*= \operatorname*{argmax}_{\bm {\phi}} I(F_{\bm {\phi}}(\bm{d}), \bm {\theta}).
+   \bm {\varphi}^*= \operatorname*{argmax}_{\bm {\varphi}} I(F_{\bm {\varphi}}(\bm{d}), \bm {\theta}).
 \end{equation}
 However, the mutual information expressed in \autoref{Eq:mutual_information} is not tractable. To overcome this limitation,  several approaches have been developed, relying on tractable bounds that allow the training of a deep neural network to optimize the mutual information. In this work, we adopt the same strategy used by \citet{jeffrey2021likelihood} and use the variational lower bound \citep{barber2003information}:
 \begin{equation}\label{Eq:variational_lower_bound}
-    I(\bm{t}, \bm{\theta}) \ge \mathbb{E}_{p(\bm {t}, \bm {\theta})} [\log{q(\bm {\theta} |\bm{t} ; \bm{\phi}')}]- H(\bm {\theta}).
+    I(\bm{t}, \bm{\theta}) \ge \mathbb{E}_{p(\bm {t}, \bm {\theta})} [\log{q(\bm {\theta} |\bm{t} ; \bm{\varphi}')}]- H(\bm {\theta}).
 \end{equation}
-Here, the variational conditional distribution $\log{q(\bm {\theta} |\bm{t} ; \bm{\phi}')}$ is introduced to approximate the true posterior distribution $p(\bm{\theta}|\bm {t})$. 
+Here, the variational conditional distribution $\log{q(\bm {\theta} |\bm{t} ; \bm{\varphi}')}$ is introduced to approximate the true posterior distribution $p(\bm{\theta}|\bm {t})$. 
 Since the entropy of the cosmological parameters is constant for a fixed training set, the optimization problem based on the lower bound in  \autoref{Eq:variational_lower_bound} can be written as:
 \begin{equation}
-    \operatorname*{argmax}_{\bm {\phi}, \bm {\phi}'}\mathbb{E}_{p(\bm {d}, \bm {\theta})} [\log{q(\bm {\theta} |F_{\bm {\phi}}(\bm {d}) ; \bm{\phi}')}].
+    \operatorname*{argmax}_{\bm {\varphi}, \bm {\varphi}'}\mathbb{E}_{p(\bm {d}, \bm {\theta})} [\log{q(\bm {\theta} |F_{\bm {\varphi}}(\bm {d}) ; \bm{\varphi}')}].
 \end{equation}
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
 \subsubsection{Inference strategy}
 
-To evaluate compression strategies, we propose a comparison of posteriors $p(\theta|s(x))$, where $s(x)$ is the summary statistic. Indeed, the more informative the summary statistics, the closer the posterior $p(\theta | s(x))$ is to the true posterior $p (\theta | x)$. To this end, we propose to do Neural Posterior Estimation (NPE) \justine{describe a bit more what it is, sbi method etc} that aims to directly learn from simulations the posterior distribution
+By comparing the posteriors $p(\theta| t)$ obtained with different compression strategies, we can assess the sensitivity of the results to the choice of statistics. In particular, the more informative the summary statistics, the “closer” the posterior $p(\theta | t)$ is to the true posterior $p(\theta | x)$. In this section, we describe how we approximate the posterior distribution for each summary statistic t, enable us to use it as a fair benchmark for comparison (we describe the performance metric in section ??).\\
+Since the likelihood $p(t|\theta)$ is intractable, we propose to do Neural Posterior Estimation \citep{npe1, npe2, npe3}, a Simulation-Based Inference (SBI) strategy that aims to directly approximate, from simulations, the posterior distribution 
+
 \begin{equation}
-    p(\theta | x) \propto \int p(x | \theta, z) p(z|\theta) p(\theta) dz\,.
+    p(\theta | t) \propto \int p(t | \theta, z) p(z|\theta) p(\theta) dz\,.
 \end{equation}
-To achieve this, we train a  conditional Normalizing Flow (NF) \justine{as proposed by ... (REF) / neural simulation-based inference} $p_{\varphi} (\theta | s(x)) $ by minimizing the negative log-probability in $(\theta, s(x))$ space:
+
+Usually, NPE algorithm approximates the posterior distribution through the use of conditional Normalizing Flows $p_{\varphi} (\theta | t)$ \citep{nf1, nf2}. This is achieved by minimizing the negative log probability: 
+
 \begin{equation}
-    \mathcal{L}_{\rm NLL} = \mathbb{E}_{p(\theta, s(x))} \left[ - \log p_{\varphi} (\theta | s(x))  \right].
+    \mathbb{E}_{p(\theta, t)} \left[ - \log p_{\varphi} (\theta | t)  \right].
     \label{eq:nll}
 \end{equation}
 
-\justine{talk about evaluation of approx posterior at a given obs}
+Finally, the target posterior $p(\theta | t = t_0)$ is approximated by $p_{\varphi}(\theta | t = t_0)$ where $t_0 = t(x_0)$ with $x_0$ the observed convergence map.
 
-By learning the posterior distribution for each statistic, we capture the significance of each statistic. This approach allows us to use the posterior distribution as a fair benchmark for comparison.
-In particular, for each statistic we use the same NF architecture which is a RealNVP (REF) with 4 coupling layers, shift and scale parameters are learned using a neural network with 2 layers of 128 neurons, activation functions are $silu$ (REF).
-
-
+For each summary statistic, we approximate it posterior distribution using the same NF architecture, namely a RealNVP \citep{realnvp} with 4 coupling layers, shift and scale parameters are learned using a neural network with 2 layers of 128 neurons, activation functions are $silu$ \citep{silu}. And, for each summary statistic, the prior $p(\theta)$ used in the inference process remains the same.
+%--------------------------------------------------------------------
+%--------------------------------------------------------------------
+\subsection{Result estimators}
+To evaluate the results obtained from different approaches, we use two commonly employed estimators found in the literature. Their definitions are provided in the following sections.
+%--------------------------------------------------------------------
+\subsubsection{Figure of Merit (FoM)}
+To quantify the constraining power of each inference strategy, we first employ the Figure of Merit (FoM), defined as follows:
+\begin{equation}\label{Eq:Figure_of_merit}
+    \text{FoM}_{\alpha \beta}=\sqrt{\text{det}(\Tilde{F}_{\alpha \beta})}.
+\end{equation}
+Here, $\alpha$ and $\beta$ represent a pair of cosmological parameters, and $\Tilde{F}_{\alpha \beta}$ refers to the marginalized Fisher matrix. We calculate $\Tilde{F}_{\alpha \beta}$ as the inverse of the parameter space covariance matrix $C_{\alpha \beta}$, which is estimated from the HMC chains and from the Normalizing flow sampling. 
+Under the assumption of a Gaussian covariance, the FoM defined in \autoref{Eq:Figure_of_merit} is proportional to the inverse of the $2-\sigma$ contours in the 2-dimensional marginalised parameter space of the $\alpha$ and $\beta$ pair.
+\subsubsection{KL}
+%--------------------------------------------------------------------
 \begin{center}
 \begin{table*}
 \begin{tabular}{ |p{3.5cm}|p{2cm}|p{3cm}|p{2.5cm}|p{4cm}|  }
@@ -471,7 +477,7 @@ Reference & \makecell{Architecture\\ compressor}  & \makecell{Loss function} & \
 \rowcolor{lightgray}
             \citet{jeffrey2021likelihood} & \makecell{\makecell{CNN} \\\makecell{CNN}+NF} & 
             \makecell{MSE \\ VMIM}
-            & \makecell{PyDelfi} & \makecell{$\phi: F_{\phi}(\bm{d})=\bm{\theta}$ \\ with $\bm{\theta}=\Omega_m, \sigma_8$}    
+            & \makecell{PyDelfi} & \makecell{$\varphi: F_{\varphi}(\bm{d})=\bm{\theta}$ \\ with $\bm{\theta}=\Omega_m, \sigma_8$}    
 \\            
 \hline             
             \citet{fluri2021cosmological} & \makecell{GCNN} & \makecell{IMNN} & \makecell{GPABC} &  
@@ -500,6 +506,19 @@ Reference & \makecell{Architecture\\ compressor}  & \makecell{Loss function} & \
 
 %--------------------------------------------------------------------
 \section{Results}\label{Sec:results}
+We present the results of the constraints on the full $\Lambda$CDM parameter space expected for a survey like LSST-Y10. The forecasted results are obtained using the simulation procedure outlined in and the parameter inference strategy described in .
+We begin by comparing the outcomes of three different inference procedures: Explicit 2-point statistics, Explicit full-field statistics, and Implicit statistics using CNN summaries. Subsequently, we analyze the impact of the different compression strategies on the final cosmological constraints.
+
+\subsection{Power spectrum and full-field statistics}
+We now compare the constraining power of the three different approaches described in \autoref{Sec:experiment}: the standard-two point statistics and two map-based approaches, the explicit inference using an HMC and the implicit inference using the Normalizing Flow as an estimator. 
+As outlined before, our interest is to prove that the two map-based approaches lead to very comparable posterior distributions. We present the constraints in the full $\Lambda$CDM parameter space in \autoref{fig:contours_posterior_imp_ex_ps}. The contours obtained by the angular $C_{\ell}$ analysis are plotted in blue, the ones for the HMC in yellow, and those for the Normalizing Flow in violet. Confirming previous work, we find the two-point statistics are suboptimal in constraining $\Omega_c$, $\sigma_8$, and $w_0$. $h$, $\Omega_b$, and $n_s$ result prior dominated and hence are constrained by none of the three approaches. 
+ We quantify the results by computing the Figure of Merit as described in \autoref{Eq:Figure_of_merit}. The results are presented in \autoref{tab:f_o_m}. 
+A further investigation is represented by 
+-show the results for the KL divergence 
+-present a comparison with other works. 
+
+
+
 \begin{figure*}
     \centering
 \includegraphics[width=\textwidth]{figures/contours_posterior_imp_ex_ps.pdf}
@@ -508,6 +527,35 @@ Constraints on the $\Lambda$CDM parameter space as found in the LSST Y10 survey 
 The contours show the $68\%$ and the $95\%$  confidence regions. The dashed white lines define the true parameter values.}
 \label{fig:contours_posterior_imp_ex_ps}
 \end{figure*}
+
+\begin{center}
+\begin{table*}
+\caption{ Values of the Figure of Merit (FoM) as defined in \autoref{Eq:Figure_of_merit} for different inference strategies: the convergence power spectrum $C_{\ell}$, the HMC, the CNN map compressed statistics with the MSE, the VMIM, the MAE and the GNLL loss functions. The values of the figure of merit are inversely proportional to the area of the contours, larger the FoM, higher the constraining power.}
+\begin{tabular}{lcccccc} 
+ \hline
+    FoM &  & Explicit Inference  &  & & Implicit inference  \\
+     & $C_{\ell}$ & Full Field (HMC)&  VMIM & MSE & MAE & GNLL   \\
+  \hline
+ $\Omega_c-  \Omega_b$ & 5315 & 6951 & 6591 & 5651 & 5909\\
+ $\Omega_c-  \sigma_8$ & 1222 & 2520 & 2526 & 2043 & 2316\\
+ $\Omega_c-  h_0$      & 516  & 698  & 675  & 601  & 618\\
+ $\Omega_c-  n_s$      & 898  & 1243 & 1184 & 964  & 1030\\
+ $\Omega_c-  w_0$      & 100  & 198  & 190  & 152  & 162\\
+ $\Omega_b-  \sigma_8$ & 3997 & 5472 & 5514 & 5066 & 5398\\
+ $\Omega_b-  h_0$      & 2800 & 2994 & 2805 & 2923 & 2979\\
+ $\Omega_b-  n_s$      & 4035 & 4516 & 4174 & 4073 & 4259\\
+ $\Omega_b-  w_0$      & 523  & 846  & 791  & 736  & 771\\
+ $\sigma_8-  h_0$      & 402  & 566  & 577  & 544  & 571\\
+ $\sigma_8-  n_s$      & 583  & 889  & 891  & 787  & 854\\ 
+ $\sigma_8-  w_0$      & 77   & 176  & 171  & 139  & 149\\
+ $h_0-       n_s$      & 425  & 502  & 458  & 455  & 469\\
+ $h_0-       w_0$      & 52   & 88   & 83   & 80   & 82\\
+ $n_s-       w_0$      & 80   & 133  & 126  & 112  & 119\\
+     \hline
+\end{tabular}
+\label{tab:f_o_m}
+\end{table*}
+\end{center}
 %--------------------------------------------------------------------
 \section{Conclusions}
 %--------------------------------------------------------------------
@@ -518,4 +566,38 @@ This work was granted access to the HPC/AI resources of IDRIS under the allocati
 
 \bibliographystyle{aa} % style aa.bst
 \bibliography{paper/biblio} 
+
+\begin{appendix}
+
+\end{appendix}
+\section{Mean Square Error (MSE)}
+In this section, we demonstrate that minimizing the $L_2$ norm is equivalent to training the model to estimate the mean of the posterior distribution, namely:
+\begin{equation}\label{Eq:mean_mse}
+\left \langle \bm {\theta} \right \rangle_{p(\bm {\theta}|\bm{d})}=\operatorname*{argmin}_{\mathcal{F}(\bm{d})}\mathbb{E}_{p(\bm {\theta}|\bm {d})}[\left\Vert \bm {\theta}-\mathcal{F}(\bm{d})
+ \right \Vert_{2}^{2}].
+\end{equation}
+To demonstrate \autoref{Eq:mean_mse}, we need to minimize the expected value of the $L_2$ norm with respect to $\mathcal{F}(\bm{d})$. Let us consider its derivative:
+\begin{align}\label{Eq:moment_1}
+   & \frac{\partial}{\partial \mathcal{F}(\bm{d}) }  \mathbb{E}_{p(\bm {\theta}|\bm{d}))}[(\bm {\theta}-\mathcal{F}(\bm{d}))^2] =  \\
+    &
+    \frac{\partial}{\partial \mathcal{F}(\bm{d}) }  \mathbb{E}_{p(\bm {\theta}|\bm {d})}[\bm {\theta}^2+\mathcal{F}(\bm{d})^2-2\bm {\theta}\mathcal{F}(\bm{d})] = \nonumber \\
+    &
+    \frac{\partial}{\partial \mathcal{F}(\bm{d}) }  [
+    \mathbb{E}_{p(\bm {\theta}|\bm {d})}[\bm {\theta}^2]+\mathcal{F}(\bm{d})^2-2\mathcal{F}(\bm{d})\mathbb{E}_{p(\bm {\theta}|\bm {d})}[\bm {\theta}]]= \nonumber \\
+    &2\mathcal{F}(\bm{d})-2 \mathbb{E}_{p(\bm {\theta}|\bm {d})}[\bm {\theta}]. \nonumber
+\end{align}
+Setting it equal to zero, we obtain the critical value:
+\begin{equation}
+    \mathcal{F}(\bm{d})= \mathbb{E}_{p(\bm {\theta}|\bm {d})}[\bm {\theta}]. 
+\end{equation}
+Considering the second-order derivative:
+\begin{equation}\label{Eq:minimum_mean}
+   \frac{\partial^2}{\partial^2 \mathcal{F}(\bm{d})}  \mathbb{E}_{p(\bm {\theta}|\bm {d})}[(\bm {\theta}-\mathcal{F}(\bm{d}))^2]=2, 
+\end{equation}
+we can assert that the critical value $\mathcal{F(\bm(\theta))}$ is also a minimum. 
+Since 
+\begin{equation}
+    \mathbb{E}_{p(\bm {\theta}|\bm {d})}[\bm {\theta}|\bm{d}]= \left \langle \bm {\theta} \right \rangle_{p(\bm {\theta}|\bm{d})}
+\end{equation}
+it follows from \autoref{Eq:minimum_mean} the \autoref{Eq:mean_mse}.
 \end{document}
