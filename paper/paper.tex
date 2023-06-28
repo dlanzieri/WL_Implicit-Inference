@@ -29,6 +29,8 @@ Alexandre Boucaud \inst{2}
 \and
 Fran\c{c}ois Lanusse \inst{3}
 \and
+T. Lucas Makinen \inst{4}
+\and
 Jean-Luc Starck \inst{3}
 }
 \institute{Université Paris Cité, Université Paris-Saclay, CEA, CNRS, AIM, F-91191, Gif-sur-Yvette, France
@@ -36,6 +38,7 @@ Jean-Luc Starck \inst{3}
 Université Paris Cité, CNRS, Astroparticule et Cosmologie, F-75013 Paris, France
 \and
 Université Paris-Saclay, Université Paris Cité, CEA, CNRS, AIM, 91191, Gif-sur-Yvette, France
+\and 
 }
 \titlerunning{}
 \date{Received xxx; accepted xxx}
@@ -55,10 +58,9 @@ Université Paris-Saclay, Université Paris Cité, CEA, CNRS, AIM, 91191, Gif-su
   % conclusions heading (optional), leave it empty if necessary 
    {}
 
-   \keywords{giant planet formation --
-                $\kappa$-mechanism --
-                stability of gas spheres
+   \keywords{methods: statistical – gravitational lensing: weak – cosmology: large-scale structure of Universe
                }
+               
 
    \maketitle
 
@@ -71,15 +73,13 @@ Université Paris-Saclay, Université Paris Cité, CEA, CNRS, AIM, 91191, Gif-su
 %------------------------------------------------------------------
 %------------------------------------------------------------------
 %------------------------------------------------------------------
-\section{Inference over forward simulation models}
-With the increased statistical power of stage IV surveys, our cosmological analysis should not rely on the measurement of sub-optimal summary statistics, enable to fully account for the non-Gaussian information in the lensing field at
-the scales that future surveys will be able to access. One of the goals of this paper is to present a forward model of the full observables to directly extract information from the raw pixel data, instead of attempting to evaluate analytically the likelihood of any summary statistics and in doing so, preserve all the available information. 
-This approach has the advantage of easily incorporating systematic effects or easily combining multiple cosmological probes by joint simulations.  
-In this context, the simulator of the observables becomes our physical model, in which every single component is tractable. These models, also referred to as \textit{probabilistic program}, take as input the parameters $\bm{\theta}$, sample some \textit{latent variables} $z_i \sim p_i(z_i|\bm \theta, z_{<i})$, and generates the output $\bm x \sim p(\bm d|\bm \theta)$, with $\bm{d}$ observations. At this point, we can infer both the latent variables or the parameter $\bm{\theta}$. However,  the marginal likelihood is typically intractable:
+\section{Motivation}
+With the increased statistical power of stage IV surveys, our cosmological analysis should not rely on the measurement of sub-optimal summary statistics, that may not fully capture the non-Gaussian information present in the lensing field at the scales accessible to future surveys. One of the main objectives of this paper is to introduce a forward model that directly extracts information from the raw pixel data, rather than relying on the analytical evaluation of summary statistics. By doing so, we aim to preserve all available information and facilitate the incorporation of systematic effects and the combination of multiple cosmological probes through joint simulations.
+In this context, the simulator of the observables serves as our physical model, where each component is tractable. These models, also knows as \textit{probabilistic program}, considering a prior distribution $p(\bm{\theta})$ for the parameter $\bm{\theta}$, sample \textit{latent variables} $z_i \sim p_i(z_i|\bm \theta, z_{<i})$, generating the output $\bm x \sim p(\bm d|\bm \theta)$, where $\bm{d}$ represents the observations. However, computing the marginal likelihood is typically intractable:
 \begin{equation}
     p(\bm{x}|\bm{\theta})=\int p(\bm{x},\bm{z}|\bm{\theta}) d\bm{z}=\int p(\bm{x}|\bm{z},\bm{\theta})p(\bm{z}|\bm{\theta}) d\bm{z}.
 \end{equation}
-To bypass this limitation, while keeping exploring the full information content of data, we have different approaches. Although in literature these approaches are usually referred to in different ways, in this work hereafter we will make the following distinction 
+To overcome this limitation while still capturing the full information content of the data, different approaches have been proposed in the literature. Although these approaches are often referred to by different names, in this work, we will make the following distinction
 %--------------------------------------------------------------------
 \paragraph{\textbf{Explicit inference}} referring to all Likelihood-based inference approaches. 
 In the context of the forward model and full field analysis, fall in this category the Bayesian Hierarchical Model (BHM).
@@ -99,7 +99,7 @@ Ultimately, for a given simulation model, the two approaches should converge to 
 %------------------------------------------------------------------
 %------------------------------------------------------------------
 %------------------------------------------------------------------
-\section{The SBILens framework}
+\section{The SBILens framework}\label{Sec:the SBILens framework}
 \subsection{Lognormal Modeling}
 For various cosmological applications, the non-Gaussian field can be modeled as a Lognormal field \citep{coles1991lognormal,bohm2017bayesian}.
 This model offers the advantage of generating the matter or convergence field rapidly while allowing the extraction of information beyond the two-point statistics. 
@@ -276,76 +276,72 @@ Not relying on any summary statistics, the full-field approach typically results
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
-\subsubsection{Need for data compression}
-%--------------------------------------------------------------------
-%--------------------------------------------------------------------
-%--------------------------------------------------------------------
 \subsubsection{Benchmark compression scheme}
-There are several approaches available for training the compressor, and this section aims to provide an overview of these different methods used in previous works. 
-In \autoref{Sec:results}, we will compare the outcomes of these various strategies. Specifically, using the same prior $p(\bm {\theta})$ for the cosmological parameter $\bm{\theta}$ and the simulator described in \autoref{Sec:results}, which samples $\bm {x}$ from $p(\bm{x}| \bm{\theta})$ and produces a set of mock observations $\bm{x_0}$, we will compare the posterior distribution $p(\bm{\theta}|\bm{x})$ obtained form each inference pipeline. This analysis will help to determine the optimal compression strategy, enabling us to extract the maximum amount of information possible given the fixed cosmological parameters.
+To ensure the scalability of density estimation LFI in cases where forward simulations are computationally expensive, it becomes necessary to employ compression techniques that reduce the dimensionality of the data space and extract summary statistics. 
+Specifically, we try to find a function $\bm{t}=F(\bm{d})$, where $\bm{t}$ represents low-dimensional summaries of the original data vector $\bm{d}$. The objective is to achieve a compression function $F(\bm{d})$ that maximizes the information while minimizing dimensionality. Previous studies \citep{alsing2018generalized} have demonstrated that, under specific conditions, a compression scheme can be achieved where the dimension of the summaries dim($\bm{t}$) is equal to the dimension of the unknown parameters dim($\bm{\theta}$) without any loss of information at the Fisher level. Multiple approaches exist in an attempt to satisfy this condition. This section aims to provide an overview of the various neural compression-based methods employed in previous works.
+
+
+
+
+
 %--------------------------------------------------------------------
 \paragraph{\textcolor{violet}{Mean Square Error (MSE)}}
-One of the most common approaches used to train a Neural Network is minimizing the $L_2$ norm or Mean Square Error (MSE).
-This approach has been widely adopted in various previous studies  \citep{ribli2018improved, lu2022simultaneously, lu2023cosmological}, where the loss function is typically formulated as follows:
+%--------------------------------------------------------------------
+One of the commonly used techniques for training a Neural Network is by minimizing the $L_2$ norm or Mean Square Error (MSE).
+This methods has been widely adopted in various previous studies  \citep{ribli2018improved, lu2022simultaneously, lu2023cosmological}, where the loss function is typically formulated as follows:
 \begin{equation}
    \mathcal{L}=\frac{1}{N_{\theta}}(\bm{t}-\bm{\theta})^2.
 \end{equation}
 Here $N_{\theta}$ represents the number of cosmological parameters, $\bm{t}$ denotes the summary statistics, and $\bm{\theta}$ corresponds to the data vector of the cosmological parameters. 
-However, it is important to note that this approach does not guarantee to recover the maximal information summary statistics. Although this can be true for fixed cosmology and Gaussian posterior, this has to be proved for more generic cases. Indeed, minimizing the $L_{1}$ norm is equivalent to training the model to estimate the mean of the posterior distribution. We prove this statement in XXX of XX.
+However, it is important to note that this approach does not guarantee the recovery of maximally informative summary statistics. While this may hold true for fixed fiducial values of the cosmological parameters and assumptions of Gaussianity, its validation to more generic cases need to be proved. Indeed, minimizing the $L_{2}$ norm is equivalent to training the model to estimate the mean of the posterior distribution. We prove this statement in \autoref{Sec:appendix_Mean Square Error}.
 %--------------------------------------------------------------------
 \paragraph{\textcolor{violet}{Maximum Absolute Error (MAE)}}
-Instead of minimizing the $L_2$ norm, these approaches focus on the $L_1$ norm or Mean Absolute Error (MAE). In this section, we demonstrate that this is equivalent to training the model to estimate the median of the posterior distribution.
-By definition, the median of a probability density function $p(x)$ is a real number $m$ that satisfies:
-\begin{equation}\label{Eq:definition_median}
-\int_{\infty}^{m} p(x)dx=\int_{m}^{\infty}p(x)dx=\frac{1}{2}.
-\end{equation}. 
-The expectation value of the mean absolute error is defined as:
+%--------------------------------------------------------------------
+Another commonly used approach involves minimizing the $L_1$ norm or Mean Absolute Error (MAE). In this approach, the loss function is defined as:
 \begin{equation}
-    \mathbb{E}[|x-m|]= \int_{\infty}^{\infty}p(x)|x-m|dx  
+    \mathcal{L}=|\bm{t}-\bm{\theta}|
 \end{equation}
-which can be decomposed as
-\begin{equation}
-        \int_{\infty}^{m}p(x)|x-m|dx +\int_{m}^{\infty}p(x)|x-m|dx .
+where $\bm{t}$ represents the summary statistics and $\bm{\theta}$ denotes the cosmological parameters.
+In \autoref{Sec:appendix_Maximum Absolute Error}, we demonstrate that minimizing this loss function is equivalent to training the model to estimate the median of the posterior distribution. While extensively employed in various previous studies \citep{2018PhRvD..97j3515G, fluri2018cosmological, ribli2019weak}, similar to the previous consideration for the MSE, it is important to note that the effectiveness of this loss function in extracting sufficient statistics needs to be demonstrated in more generic applications.
+%--------------------------------------------------------------------
+\paragraph{\textcolor{violet}{Variational Mutual Information Maximization (VMIM)}}
+%--------------------------------------------------------------------
+The Variational Mutual Information Maximization (VMIM) technique was first introduced for cosmological inference problems by \citet{jeffrey2021likelihood}. This approach aims to maximize the mutual information $I(\bm{t}, \bm {\theta})$ between the cosmological parameters $\bm{\theta}$ and the summary statistics $\bm{t}$.
+In the VMIM approach, the loss function is defined as:
+\begin{equation}\label{Eq:Loss_vmim}
+    \mathcal{L}=- \log{q(\bm{\theta}|\bm{t};\bm{\varphi'})}.
 \end{equation}
-To minimize this function with respect to $m$, we need to compute its derivative:
-\begin{equation}\label{Eq:absolute_median}
-    \frac{d\mathbb{E}[|x-m|]}{dm}=
-    \frac{d}{dm}\int_{\infty}^{m}p(x)|x-m|dx +\frac{d}{dm}\int_{m}^{\infty}p(x)|x-m|dx. 
-\end{equation}
-Considering that $|x-m|=(x-m)$ for $m\le x$ and $|x-m|=(m-x)$ $m\ge x$, 
-we can write \autoref{Eq:absolute_median} as:
-\begin{equation}
-    \frac{d\mathbb{E}[|x-m|]}{dm}=
-    \frac{d}{dm}\int_{\infty}^{m}p(x)(m-x)dx +\frac{d}{dm}\int_{m}^{\infty}p(x)(x-m)dx .
-\end{equation}
-Using the Leibniz integral rule, we get:
-\begin{align}
-    &\frac{d\mathbb{E}[|x-m|]}{dm}= \\
-    &
-    p(x)(m-m)\frac{dm}{dm}+\int_{\infty}^{m}\frac{\partial}{\partial m}[p(x)(m-x)]dx + \nonumber \\
-    & - p(x)(m-m)\frac{dm}{dm}+\int_{m}^{\infty}\frac{\partial}{\partial m}[p(x)(m-x)]dx \nonumber .
+Here, $q(\bm{\theta}|\bm{t};\bm{\varphi'})$ represents a variational conditional distribution, $\bm{t}$ denotes the summary statistics, $\bm{\theta}$ corresponds to the data vector of the cosmological parameters, and $\bm{\varphi'}$ are the parameters of the Neural Network.
+In order to understand the significance of this loss function, it is necessary to start by considering the mathematical definition of mutual information $I(\bm{t}, \bm {\theta})$:
+\begin{align}\label{Eq:mutual_information}
+    I(\bm{t}, \bm {\theta}) &= D_{KL}(p(\bm {t}, \bm {\theta})||p(\bm {t})p(\bm {\theta})) \\ \nonumber
+    &= \int d^n \bm{\theta} d^n \bm{t} p(\bm t, \bm \theta)\log{\left( \frac{ p(\bm {t}, \bm {\theta})}{ p(\bm {t}) p(\bm {\theta})} \right)} \\ \nonumber
+    &= \int d^n \bm{\theta} d^n \bm{t} p(\bm t, \bm {\theta})\log{\left( \frac{ p(\bm {\theta} | \bm {t} )}{ p(\bm {\theta})} \right)} \\ \nonumber
+        &= \int d^n \bm{\theta} d^n \bm{t} p(\bm t, \bm {\theta})\log{p(\bm {\theta} | \bm {t} )} - \int d^n \bm{\theta}  d^n \bm{t} p(\bm t, \bm {\theta})\log{p(\bm {\theta})} \\ \nonumber
+    &= \int d^n \bm{\theta} d^n \bm{t} p(\bm t, \bm {\theta})\log{p(\bm {\theta} | \bm {t} )} - \int d^n \bm{\theta} p(\bm {\theta})\log{p(\bm {\theta})} \\ \nonumber
+    &= \mathbb{E}_{p(\bm {t}, \bm {\theta})} [\log{p(\bm {\theta} | \bm {t} )}]- \mathbb{E}_{p(\bm {\theta})} [\log{p(\bm {\theta})}] \\ \nonumber
+    &= \mathbb{E}_{p(\bm {t}, \bm {\theta})} [\log{p(\bm {\theta} | \bm {t} )}]- H(\bm {\theta});
 \end{align}
-Setting the derivative to zero, we obtain:
+
+in the above equation, $D_{KL}$ is the Kullback-Leibler divergence \citep{kullback1951information}, $p(\bm {t}, \bm {\theta})$ is the joint probability distribution of summary statistics and cosmological parameters, and $H(\bm {\theta})$ represents the \textit{entropy} of the distribution of cosmological parameters.  
+Essentially, mutual information measures the amount of information contained in the summary statistics $\bm t$ about the cosmological parameters $\bm \theta$. The summary statistics $\bm{t}$ are extracted from the original high-dimensional data vector $\bm{d}$ using $\bm{t}=F_{\bm {\varphi}}(\bm{d})$.
+The goal is to find the parameters $\bm {\varphi}$ that maximize the mutual information between the summary and cosmological parameters:
 \begin{equation}
-    \frac{d\mathbb{E}[|x-m|]}{dm}= \int_{\infty}^{m} p(x)dx-\int_{m}^{\infty}p(x)dx =0.
+   \bm {\varphi}^*= \operatorname*{argmax}_{\bm {\varphi}} I(F_{\bm {\varphi}}(\bm{d}), \bm {\theta}).
 \end{equation}
-Thus,
+However, the mutual information expressed in \autoref{Eq:mutual_information} is not tractable. To overcome this limitation, various approaches have been developed that rely on tractable bounds, enabling the training of deep neural networks to optimize the mutual information. In this study, we adopt the same strategy used by \citet{jeffrey2021likelihood}, which involves using the variational lower bound \citep{barber2003information}:
+\begin{equation}\label{Eq:variational_lower_bound}
+    I(\bm{t}, \bm{\theta}) \ge \mathbb{E}_{p(\bm {t}, \bm {\theta})} [\log{q(\bm {\theta} |\bm{t} ; \bm{\varphi}')}]- H(\bm {\theta}).
+\end{equation}
+Here, the variational conditional distribution $\log{q(\bm {\theta} |\bm{t}; \bm{\varphi}')}$ is introduced to approximate the true posterior distribution $p(\bm{\theta}|\bm {t})$. 
+As the entropy of the cosmological parameters remains constant for a fixed training set, the optimization problem based on the lower bound in \autoref{Eq:variational_lower_bound} can be formulated as:
 \begin{equation}
-\int_{\infty}^{m} p(x)dx=\int_{m}^{\infty}p(x)dx .
+    \operatorname*{argmax}_{\bm {\varphi}, \bm {\varphi}'}\mathbb{E}_{p(\bm {d}, \bm {\theta})} [\log{q(\bm {\theta} |F_{\bm {\varphi}}(\bm {d}) ; \bm{\varphi}')}], 
 \end{equation}
-Considering that
-\begin{equation}
-\int_{\infty}^{m} p(x)dx+\int_{m}^{\infty}p(x)dx=1,
-\end{equation}
-we obtain 
-\begin{equation}\label{Eq:definition_median}
-\int_{\infty}^{m} p(x)dx=\int_{m}^{\infty}p(x)dx=\frac{1}{2}.
-\end{equation}
+yielding \autoref{Eq:Loss_vmim}.
 %--------------------------------------------------------------------
 \paragraph{\textcolor{violet}{Gaussian Negative Log-Likelihood (GNLL)}}
 %--------------------------------------------------------------------
-\FL{I think we should have this section after the VMIM}
-
 \FL{Recognizing that the uncertainty on different cosmological parameters will vary, a third
 class of inverse variance weighted MSE was proposed in \cite{fluri2018cosmological} with the idea of
 ensuring that each parameter contributes fairly to the overall loss by taking into account its uncertainty. The loss function typically takes the following form:
@@ -364,52 +360,10 @@ This means that this loss function is actually sub-optimal for two reasons:
 \end{itemize}
  A simple MSE would thus seem to be preferable.
 }
-% A third possible scenario consists in minimizing the Negative Log Likelihood. First of all, let us stating that minimizing the negative log likelihood is equivalent to the Maximum Likelihood Estimation (MLE). The proof of this statement is straightforward. As suggested by the name, this optimization problem involves maximizing the likelihood distribution $p(\bm{x}|\bm{\theta})$
-% \begin{equation}
-%     \bm{\theta}_{ML}= \operatorname*{argmax}_{\bm{\theta}}p(\bm{x}|\bm{\theta}).
-% \end{equation}
-% where
-% \begin{equation}
-%     p(\bm{x}|\bm{\theta})= \prod_{i-1}^n p(x_i|\bm{\theta}).
-% \end{equation}
-% Applying the log function in this context is done for several reasons, e.g. reducing the potential of underflow when the likelihoods are small or allowing the conversion of a product into a summation. 
-% Then, remembering that $-\log$ is strictly decreasing, the following are equivalent:
-% \begin{equation}
-%     \operatorname*{argmax}_{\bm{\theta}}\sum_{i-1}^n \log{p(x_i|\bm{\theta})}= \operatorname*{argmin}_{\bm{\theta}}-\sum_{i-1}^n \log{p(x_i|\bm{\theta})}.
-% \end{equation}
-
 %--------------------------------------------------------------------
 \paragraph{\textcolor{violet}{Information Maximising Neural Networks (IMNNs)}}
 %--------------------------------------------------------------------
-\paragraph{\textcolor{violet}{Variational Mutual Information Maximization (VMIM)}}
-The Variational Mutual Information Maximization (VMIM) has been used for cosmological inference problems for the first time by \citet{jeffrey2021likelihood}. This approach aims to maximize the mutual information $I(\bm{t}, \bm {\theta})$ between the cosmological parameters $\bm{\theta}$ and the summary statistics $\bm t$ by training a neural network with parameters $\varphi$. 
-Mathematically, it is defined as follows:
-\begin{align}\label{Eq:mutual_information}
-    I(\bm{t}, \bm {\theta}) &= D_{KL}(p(\bm {t}, \bm {\theta})||p(\bm {t})p(\bm {\theta})) \\ \nonumber
-    &= \int d^n \bm{\theta} d^n \bm{t} p(\bm t, \bm \theta)\log{\left( \frac{ p(\bm {t}, \bm {\theta})}{ p(\bm {t}) p(\bm {\theta})} \right)} \\ \nonumber
-    &= \int d^n \bm{\theta} d^n \bm{t} p(\bm t, \bm {\theta})\log{\left( \frac{ p(\bm {\theta} | \bm {t} )}{ p(\bm {\theta})} \right)} \\ \nonumber
-        &= \int d^n \bm{\theta} d^n \bm{t} p(\bm t, \bm {\theta})\log{p(\bm {\theta} | \bm {t} )} - \int d^n \bm{\theta}  d^n \bm{t} p(\bm t, \bm {\theta})\log{p(\bm {\theta})} \\ \nonumber
-    &= \int d^n \bm{\theta} d^n \bm{t} p(\bm t, \bm {\theta})\log{p(\bm {\theta} | \bm {t} )} - \int d^n \bm{\theta} p(\bm {\theta})\log{p(\bm {\theta})} \\ \nonumber
-    &= \mathbb{E}_{p(\bm {t}, \bm {\theta})} [\log{p(\bm {\theta} | \bm {t} )}]- \mathbb{E}_{p(\bm {\theta})} [\log{p(\bm {\theta})}] \\ \nonumber
-    &= \mathbb{E}_{p(\bm {t}, \bm {\theta})} [\log{p(\bm {\theta} | \bm {t} )}]- H(\bm {\theta});
-\end{align}
 
-where $D_{KL}$ is the Kullback-Leibler divergence \citep{kullback1951information}, $p(\bm {t}, \bm {\theta})$ is the joint probability distribution of summary statistics and cosmological parameters, and $H(\bm {\theta})$ represents the \textit{entropy} of the distribution of cosmological parameters.  
-In other words, the mutual information measures the amount of information contained in the summary statistics $\bm t$ about the cosmological parameters $\bm \theta$.
-Given the original high-dimensional data vector $\bm d$, the information $\bm t$ is extracted using $\bm {t}=F_{\bm {\varphi}}(\bm {d})$. 
-The goal is to find the parameters $\bm {\varphi}$ that maximize the mutual information between the summary and cosmological parameters:
-\begin{equation}
-   \bm {\varphi}^*= \operatorname*{argmax}_{\bm {\varphi}} I(F_{\bm {\varphi}}(\bm{d}), \bm {\theta}).
-\end{equation}
-However, the mutual information expressed in \autoref{Eq:mutual_information} is not tractable. To overcome this limitation,  several approaches have been developed, relying on tractable bounds that allow the training of a deep neural network to optimize the mutual information. In this work, we adopt the same strategy used by \citet{jeffrey2021likelihood} and use the variational lower bound \citep{barber2003information}:
-\begin{equation}\label{Eq:variational_lower_bound}
-    I(\bm{t}, \bm{\theta}) \ge \mathbb{E}_{p(\bm {t}, \bm {\theta})} [\log{q(\bm {\theta} |\bm{t} ; \bm{\varphi}')}]- H(\bm {\theta}).
-\end{equation}
-Here, the variational conditional distribution $\log{q(\bm {\theta} |\bm{t} ; \bm{\varphi}')}$ is introduced to approximate the true posterior distribution $p(\bm{\theta}|\bm {t})$. 
-Since the entropy of the cosmological parameters is constant for a fixed training set, the optimization problem based on the lower bound in  \autoref{Eq:variational_lower_bound} can be written as:
-\begin{equation}
-    \operatorname*{argmax}_{\bm {\varphi}, \bm {\varphi}'}\mathbb{E}_{p(\bm {d}, \bm {\theta})} [\log{q(\bm {\theta} |F_{\bm {\varphi}}(\bm {d}) ; \bm{\varphi}')}].
-\end{equation}
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
@@ -444,7 +398,7 @@ To quantify the constraining power of each inference strategy, we first employ t
 \end{equation}
 Here, $\alpha$ and $\beta$ represent a pair of cosmological parameters, and $\Tilde{F}_{\alpha \beta}$ refers to the marginalized Fisher matrix. We calculate $\Tilde{F}_{\alpha \beta}$ as the inverse of the parameter space covariance matrix $C_{\alpha \beta}$, which is estimated from the HMC chains and from the Normalizing flow sampling. 
 Under the assumption of a Gaussian covariance, the FoM defined in \autoref{Eq:Figure_of_merit} is proportional to the inverse of the $2-\sigma$ contours in the 2-dimensional marginalised parameter space of the $\alpha$ and $\beta$ pair.
-\subsubsection{KL}
+\subsubsection{Kullback-Leibler divergence}
 %--------------------------------------------------------------------
 \begin{center}
 \begin{table*}
@@ -563,14 +517,16 @@ The contours show the $68\%$ and the $95\%$  confidence regions. The dashed whit
 \begin{acknowledgements}
 This work was granted access to the HPC/AI resources of IDRIS under the allocation 2022-AD011013922 made by GENCI.
 \end{acknowledgements}
-
+%--------------------------------------------------------------------
+%              #########    START BIBLIO   #########
+%--------------------------------------------------------------------
 \bibliographystyle{aa} % style aa.bst
 \bibliography{paper/biblio} 
-
+%--------------------------------------------------------------------
+%              #########    START APPENDIX   #########
+%--------------------------------------------------------------------
 \begin{appendix}
-
-\end{appendix}
-\section{Mean Square Error (MSE)}
+\section{Mean Square Error (MSE)}\label{Sec:appendix_Mean Square Error}
 In this section, we demonstrate that minimizing the $L_2$ norm is equivalent to training the model to estimate the mean of the posterior distribution, namely:
 \begin{equation}\label{Eq:mean_mse}
 \left \langle \bm {\theta} \right \rangle_{p(\bm {\theta}|\bm{d})}=\operatorname*{argmin}_{\mathcal{F}(\bm{d})}\mathbb{E}_{p(\bm {\theta}|\bm {d})}[\left\Vert \bm {\theta}-\mathcal{F}(\bm{d})
@@ -600,4 +556,57 @@ Since
     \mathbb{E}_{p(\bm {\theta}|\bm {d})}[\bm {\theta}|\bm{d}]= \left \langle \bm {\theta} \right \rangle_{p(\bm {\theta}|\bm{d})}
 \end{equation}
 it follows from \autoref{Eq:minimum_mean} the \autoref{Eq:mean_mse}.
+%--------------------------------------------------------------------
+\section{Maximum Absolute Error (MAE)}\label{Sec:appendix_Maximum Absolute Error}
+In this section, we demonstrate that minimizing the $L_2$ norm is equivalent to training the model to estimate the median of the posterior distribution.
+By definition, the median of a probability density function $p(x)$ is a real number $m$ that satisfies:
+\begin{equation}\label{Eq:definition_median}
+\int_{\infty}^{m} p(x)dx=\int_{m}^{\infty}p(x)dx=\frac{1}{2}.
+\end{equation}. 
+The expectation value of the mean absolute error is defined as:
+\begin{equation}
+    \mathbb{E}[|x-m|]= \int_{\infty}^{\infty}p(x)|x-m|dx  
+\end{equation}
+which can be decomposed as
+\begin{equation}
+        \int_{\infty}^{m}p(x)|x-m|dx +\int_{m}^{\infty}p(x)|x-m|dx .
+\end{equation}
+To minimize this function with respect to $m$, we need to compute its derivative:
+\begin{equation}\label{Eq:absolute_median}
+    \frac{d\mathbb{E}[|x-m|]}{dm}=
+    \frac{d}{dm}\int_{\infty}^{m}p(x)|x-m|dx +\frac{d}{dm}\int_{m}^{\infty}p(x)|x-m|dx. 
+\end{equation}
+Considering that $|x-m|=(x-m)$ for $m\le x$ and $|x-m|=(m-x)$ $m\ge x$, 
+we can write \autoref{Eq:absolute_median} as:
+\begin{equation}
+    \frac{d\mathbb{E}[|x-m|]}{dm}=
+    \frac{d}{dm}\int_{\infty}^{m}p(x)(m-x)dx +\frac{d}{dm}\int_{m}^{\infty}p(x)(x-m)dx .
+\end{equation}
+Using the Leibniz integral rule, we get:
+\begin{align}
+    &\frac{d\mathbb{E}[|x-m|]}{dm}= \\
+    &
+    p(x)(m-m)\frac{dm}{dm}+\int_{\infty}^{m}\frac{\partial}{\partial m}[p(x)(m-x)]dx + \nonumber \\
+    & - p(x)(m-m)\frac{dm}{dm}+\int_{m}^{\infty}\frac{\partial}{\partial m}[p(x)(m-x)]dx \nonumber .
+\end{align}
+Setting the derivative to zero, we obtain:
+\begin{equation}
+    \frac{d\mathbb{E}[|x-m|]}{dm}= \int_{\infty}^{m} p(x)dx-\int_{m}^{\infty}p(x)dx =0.
+\end{equation}
+Thus,
+\begin{equation}
+\int_{\infty}^{m} p(x)dx=\int_{m}^{\infty}p(x)dx .
+\end{equation}
+Considering that
+\begin{equation}
+\int_{\infty}^{m} p(x)dx+\int_{m}^{\infty}p(x)dx=1,
+\end{equation}
+we obtain 
+\begin{equation}\label{Eq:definition_median}
+\int_{\infty}^{m} p(x)dx=\int_{m}^{\infty}p(x)dx=\frac{1}{2}.
+\end{equation}
+%--------------------------------------------------------------------
+%              #########    END APPENDIX   #########
+%--------------------------------------------------------------------
+\end{appendix}
 \end{document}
