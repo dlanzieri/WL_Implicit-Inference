@@ -72,10 +72,11 @@ Université Paris-Saclay, Université Paris Cité, CEA, CNRS, AIM, 91191, Gif-su
 }
    }   
   % aims heading (mandatory)
-    {This paper presents a comparative analysis of various neural network-based compression schemes within the LFI framework for weak lensing analysis. Specifically, we focus on evaluating the performance of different loss functions employed during the training of the neural network and their impact on the forecasted constraints for the $\Lambda$CDM parameters expected from LSST-Y10. To validate our findings, we compare the posterior distributions obtained through LFI with those derived from a Bayesian forward modeling approach. \justine{instead of 'Bayesian forward modeling approach' maybe we can say field-based Bayesian Hierarchical Model analysis performed through HMC (considered as our ground truth)?}}  
+    {We aim to derive the optimal neural-compression strategy for full field Likelihood free inference by density estimation. Moreover, by using the optimal compression strategy, we demonstrate that the posterior distribution is comparable to those derived from a Bayesian forward modeling approach.}  
   % methods heading (mandatory)
-    {For both forward-modeling the convergence field and generating observed mock data, we use the \href{https://github.com/DifferentiableUniverseInitiative/sbi_lens}{\url{SbiLens}} package. 
-    This package enables posterior inference on cosmological parameters in a tomographic setting, accounting for cross-correlations between different redshift bins. \texttt{SbiLens} is a jax-based differentiable physical model specifically designed for Likelihood Free Inference and Bayesian inference algorithms that require access to likelihood derivatives.
+    { We present a comparative analysis of different loss functions employed during the training of the neural network. We  evaluate their performance by measuring their impact on the constraints on the $\Lambda$CDM parameters expected from LSST-Y10.
+    For both forward-modeling the convergence field and generating observed mock data, we use the \href{https://github.com/DifferentiableUniverseInitiative/sbi_lens}{\url{SbiLens}} package. 
+    \texttt{SbiLens} is a jax-based differentiable physical model specifically designed for Likelihood Free Inference and Bayesian inference algorithms that require access to likelihood derivatives.
     
     \justine{\textbf{I think the main ideas for this part are: }
 
@@ -134,14 +135,16 @@ The paper is structured as follows: in \autoref{Sec:Motivation}, we illustrate t
 \section{Motivation}\label{Sec:Motivation}
 %--------------------------------------------------------------------
 With the increased statistical power of stage IV surveys, our cosmological analysis should not rely on the measurement of sub-optimal summary statistics, that may not fully capture the non-Gaussian information present in the lensing field at the scales accessible to future surveys. In this paper we introduce a forward model that directly extracts information from the raw pixel data, rather than relying on the analytical evaluation of summary statistics. By doing so, we aim to preserve all available information and facilitate the incorporation of systematic effects and the combination of multiple cosmological probes through joint simulations.
-In this context, the simulator of the observables serves as our physical model, where each component is tractable. These models, often refereed to as \textit{probabilistic program}, can be described as follows. They take as input a vector parameter $\bm{\theta}$, which describes the underlying deterministic model. Then, they sample internal states, dubbed \textit{latent variables}, from the distribution $\bm{z}_i \sim p_i(\bm{z}_i|\bm \theta, \bm{z}_{<i})$, than can be directly or indirectly related to a physically meaningful state of the system. Finally, they generate the output $\bm x$z from the distribution $\ p(\bm d|\bm \theta)$, where $\bm{d}$ represents the observations. 
+In this context, the simulator of the observables serves as our physical model, where each component is tractable. These models, often refereed to as \textit{probabilistic program}, can be described as follows. They take as input a vector parameter $\bm{\theta}$, which describes the underlying deterministic model. Then, they sample internal states, dubbed \textit{latent variables}, from the distribution $\bm{z}_i \sim p_i(\bm{z}_i|\bm \theta, \bm{z}_{<i})$, than can be directly or indirectly related to a physically meaningful state of the system. Finally, they generate the output $\bm x$ from the distribution $\ p(\bm d|\bm \theta)$, where $\bm{d}$ represents the observations. 
+
+
 The ultimate goal of Bayesian inference in cosmology is to compute the posterior distribution:
 \begin{equation}\label{Eq:posterior}
      p(\bm{\theta}|\bm{x})= 
      \frac{p(\bm{x}|\bm{\theta})p(\bm{\theta})}
      {\int d\bm{\theta'}p(\bm{x}|\bm{\theta}')p(\bm{\theta}')},
 \end{equation}
-However, a problems arises because the marginal likelihood $p(\bm{x}|\bm{\theta})$ is typically intractable:
+however, a problems arises because the marginal likelihood $p(\bm{x}|\bm{\theta})$ is typically intractable:
 \begin{equation}
     p(\bm{x}|\bm{\theta})=\int p(\bm{x},\bm{z}|\bm{\theta}) d\bm{z}=\int p(\bm{x}|\bm{z},\bm{\theta})p(\bm{z}|\bm{\theta}) d\bm{z}.
 \end{equation}
@@ -155,23 +158,24 @@ This approach involves treating the simulator as a probabilistic model and perfo
 \end{equation}
 In the context of the forward model and full field analysis, fall in this category the Bayesian Hierarchical Models (BHMs).
 A Bayesian forward approach involves using a given physical model to predict observations and then comparing these predictions with observations to infer the parameters of the model.
-However, performing a global analysis on complex and large datasets, such as a lensing dataset, is not feasible. Therefore, the idea of dividing the global analysis into several subgroups, analyzing them in multiple steps, and using the output of each of those as input for the next one. From here, the \textit{hierarchical} nature of this methodology
+However, performing a global analysis on complex and large datasets, such as a lensing dataset, is not feasible. Therefore, the idea of dividing the global analysis into several subgroups, analyzing them in multiple steps, and using the output of each of those as input for the next one. From here, the \textit{hierarchical} nature of this methodology.
 %--------------------------------------------------------------------
 \paragraph{\textbf{Implicit inference}} referring to all the approaches not relying on an analytical model to describe the signal, but rather on learning the likelihood from simulations. This second class of approaches involves treating the simulator as a black box with only the ability to sample from the joint distribution:
 \begin{equation}
     (\bm{x}, \bm{\theta})\sim p(\bm{x}, \bm{\theta}).
 \end{equation}
 Within this class of methods, we can differentiate between more traditional methods such as Approximate Bayesian Computation (ABC) and Density Estimation Likelihood-Free Inference (DELFI) methods. ABC employs rejection-criteria based approaches to approximate the likelihood by comparing simulations with data. 
-In this work, our focus will be on DELFI methods, which approach the inference task as a density estimation problem. Specifically, we can divide Likelihood-Free Inference approaches into two separate steps:
+In this work, our focus will be on DELFI methods, which approach the inference task as a density estimation problem. \\
+We can divide Likelihood-Free Inference approaches into two separate steps:
 \begin{enumerate}
     \item  Automatically learning an optimal low-dimensional summary statistic.
     \item Using Neural Density Estimation in low dimensions to infer the target distributions.
 \end{enumerate}
-In the first step, we introduce a parametric function $f_{\varphi}$
+In the first step, we introduce a parametric function $f_{\varphi}$ such that:
      \begin{equation}
          \bm{y}=f_{\varphi}(\bm{\theta}),
      \end{equation}
-which aims to reduce the dimensionality of the data while preserving information. Typically, $\bm{y}$ is assumed to have the same dimension of $\bm{\theta}$. 
+which aims to reduce the dimensionality of the data while preserving information. Typically, the compressed statistics $\bm{y}$ is assumed to have the same dimension of $\bm{\theta}$. \\
 In the second step, Neural Density Estimation can target either building an estimate $p_{\phi}$ of the likelihood function $p(\bm{x}|\bm{\theta})$ (referred to as the Neural Likelihood Estimation (NLE) task), or targeting the posterior distribution $p(\bm{\theta}|\bm{x})$, (known as Neural Posterior Estimation (NPE) task). 
 
 It is important to note that not all neural compression techniques are equivalent. Many papers that apply neural techniques for extracting summary statistics have used sub-optimal compression techniques, such as Mean Square Error or Maximum Absolute Error.
@@ -181,7 +185,7 @@ We summarize the different neural compression strategies found in the literature
 \vspace{1cm}
 Ultimately, for a given simulation model, if an optimal compression statistic is used, the two approaches should converge to the same posterior. Therefore, the goals of this paper will be:
 \begin{enumerate}
-    \item Find the optimal statistics.
+    \item Find the optimal compression strategy.
     \item Demonstrate that by using this optimal compression strategy, both the implicit and explicit methods yield comparable results.
 \end{enumerate}
 
@@ -192,7 +196,7 @@ Ultimately, for a given simulation model, if an optimal compression statistic is
 %------------------------------------------------------------------
 \section{The SBILens framework}\label{Sec:the SBILens framework}
 \denise{PEOPLE CAN READ THIS!!}
-\subsection{Lognormal Modeling}
+\subsection{Lognormal Modeling}\label{Sec:Lognormal Modeling}
 For various cosmological applications, the non-Gaussian field can be modeled as a Lognormal field \citep{coles1991lognormal,bohm2017bayesian}.
 This model offers the advantage of generating the matter or convergence field rapidly while allowing the extraction of information beyond the two-point statistics. 
 Although studies demonstrated that this model fails in describing the 3D field \citep{klypin2018density}, it properly describes the 2D convergence field \citep{clerkin2017testing, xavier2016improving}.
@@ -340,35 +344,35 @@ where we set the shape noise $\sigma_e = 0.26$ and the galaxy number density $n_
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
 To obtain the probability distribution of the cosmological parameters using a summary-statistics-methods, we focus on the 2-point statistics, specifically, on the angular power spectra $C_{\ell}$.
-The correlation between two generic tomographic bins $i$ and $j$ can be expressed as:
-\begin{equation}
-    \left \langle \kappa^{i}(\ell)\kappa^{j*}(\ell)\right \rangle =(2\pi)^2\delta_D(\ell-\ell')C_{\ell}^{ij},
-\end{equation}
 We assume a Gaussian likelihood with a cosmology-independent covariance matrix:
 \begin{equation}
     \log{\mathcal{L}}(\bm{\theta})=-\frac{1}{2}[\bm{d}-\bm{\mu}(\bm{\theta})]^{T}\bm{C}^{-1}[\bm{d}-\bm{\mu}(\bm{\theta})].
 \end{equation}
 To compute the expected theoretical predictions $\bm{\mu}(\bm{\theta})$ we use the public library \href{https://github.com/DifferentiableUniverseInitiative/jax_cosmo}{\texttt{jax-cosmo}}. 
- The Covariance matrix $\bm{C}$ of the observables is computed at the fiducial cosmology, shown in \autoref{tab:prior}, using the same theoretical library. In {\texttt{jax-cosmo}}, the Gaussian covariance matrix is defined as:
+ The Covariance matrix $\bm{C}$ of the observables is computed at the fiducial cosmology, presented in \autoref{tab:prior}, using the same theoretical library. Specifically, in {\texttt{jax-cosmo}}, the Gaussian covariance matrix is defined as:
 \begin{equation}
     \text{Cov}(C_{\ell},C_{\ell}')=\frac{1}{f_{sky}(2 \ell+1)}\left(C_{\ell}+\frac{\sigma_{\epsilon}^2}{2n_s}\right)
 \end{equation}
 where $f_{sky}$ is the fraction of sky observed by the survey, and $n_s$ is the number density of galaxies. 
-To obtain the data vector $\bm{d}$, containing the auto- and the cross-power spectra for each tomographic bin, we use the \href{https://lenstools.readthedocs.io/en/latest/lenstool} {\texttt{LensTools}} package \citep{2016A&C....17...73P} on a single noisy simulated map. 
+To obtain the data vector $\bm{d}$, containing the auto- and the cross-power spectra for each tomographic bin, we use the \href{https://lenstools.readthedocs.io/en/latest/lenstool} {\texttt{LensTools}} package \citep{2016A&C....17...73P} on a single noisy simulated map (our fiducial).
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
-\subsubsection{Full field and HMC}
+\subsubsection{Full field with BHMs}
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
-The following steps outline our methods. We draw cosmological parameters from the priors illustrated in \autoref{tab:prior}. Given values for the cosmological parameters, we generate the log-normal field as described in the previous sections. So, in other words, the simulator becomes the physical model generating a non-linear representation of the convergence map. The measure of the convergence for each pixel and for each bin predicted from the physical model will differ from the ones from real observations due to the noise.  This is taken into account in the likelihood. Specifically, for LSST Y10 the number of galaxies for each pixel should be sufficiently high that for the central limit theorem, we can assume that the observation is characterized by a Gaussian noise $\sigma_n^2=\sigma_e^2/N_s$, with $N_s$ the total number of source galaxies per bin and pixel. Given $\sigma_n^2$ the variance of this Gaussian likelihood, its form in the log form can be expressed as:
+To construct the explicit map-based inference strategy in the Hierarchical Bayesian framework, we built a likelihood based on the data model described in \autoref{Sec:Lognormal Modeling}. 
+As mentioned before, this means that the simulator serves as the physical deterministic model capable of generating the non-linear representation of the convergence map.
+
+However, in practical terms, the measurement of convergence for each pixel and bins will differ from real observations due to noise. This is taken into consideration in the likelihood. Specifically, for LSST Y10, the number of galaxies for each pixel should be sufficiently high so that, according to the central limit theorem, we can assume the observation is characterized by Gaussian noise, with $\sigma_n^2=\sigma_e^2/N_s$, where $N_s$ represents the total number of source galaxies per bin and pixel. Given $\sigma_n^2$ the variance of this Gaussian likelihood, its log-form can be expressed as:
 \begin{equation}
-    \log{\mathcal{L}}(\bm{\theta})=
+    \mathcal{L}(\bm{\theta})=
     \sum_i^{N_{pix}} \sum_{j}^{N_{bins}} \log{P(\kappa^{obs}_{i,j}|\kappa_{i,j},\bm{\theta})}
-    =\sum_i^{N_{pix}} \sum_{j}^{N_{bins}}\frac{[\kappa_{i,j}-\kappa^{obs}_{i,j}]^2}{2\sigma_n^2}
+    =\sum_i^{N_{pix}} \sum_{j}^{N_{bins}}\frac{[\kappa_{i,j}-\kappa^{obs}_{i,j}]^2}{2\sigma_n^2},
 \end{equation}
-Not relying on any summary statistics, the full-field approach typically results in a high-dimensional problem, requiring more sophisticated statistical techniques. To sample the posterior distribution for $\bm{\theta}$, we use a Hamiltonian Monte Carlo (HMC) algorithm. The HMC algorithm is particularly helpful in high-dimensional spaces where a large number of steps are required to effectively explore the space. It improves the sampling process by using the information contained in the gradients to guide the sampling process. Since the code is implemented in Jax, the gradients are accessible via automatic differentiation. 
+where $\kappa^{obs}$ refers to the values of convergence from noise maps. \\
+Since the full-field approach does not rely on any summary statistics, it typically leads to a high-dimensional problem, requiring more sophisticated statistical techniques. To sample the posterior distribution for $\bm{\theta}$, we use a Hamiltonian Monte Carlo (HMC) algorithm. The HMC algorithm is particularly helpful in high-dimensional spaces where a large number of steps are required to effectively explore the space. It improves the sampling process by leveraging the information contained in the gradients to guide the sampling process. As the code is implemented in Jax, the gradients are accessible via automatic differentiation. 
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
