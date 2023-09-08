@@ -237,7 +237,7 @@ To simulate our data, we develop the SBILens package, which employs a Lognormal 
 For each redshift bin, we tested the dependency of the shift parameter $\lambda$ on various cosmological parameters. Specifically, we investigated how the value of $\lambda$ changed when varying a specific cosmological parameter while keeping the others fixed.
 Our findings revealed that the parameters $\Omega_b$, $h_0$, and $n_s$ had almost no significant impact on $\lambda$. As a result, we computed the shift parameters for each redshift using the fiducial cosmology values of $\Omega_b$, $h_0$, and $n_s$.
 To account for the cosmology dependence of $\lambda$ on $\Omega_c$, $\sigma_8$, and $w_0$, we calculated the shift for various points in the cosmological parameter space and then interpolated the shift values for other points in the parameter space.
-Each map is reproduced on a regular grid with dimensions of $256 \times 256$ pixels and covers an area of $10\times 10$ deg$^2$.  An example of a tomographic convergence map simulated using the \texttt{SBILens} package is shown in \autoref{fig:convergence_maps}. \denise{TODO: change disp images}
+Each map is reproduced on a regular grid with dimensions of $256 \times 256$ pixels and covers an area of $10\times 10$ deg$^2$.  An example of a tomographic convergence map simulated using the \texttt{SBILens} package is shown in \autoref{fig:convergence_maps}. 
 %--------------------------------------------------------------------
 % ############# PRIOR COSMO TABLE  #############
 %--------------------------------------------------------------------
@@ -311,17 +311,15 @@ where we set the shape noise $\sigma_e = 0.26$ and the galaxy number density $n_
 %--------------------------------------------------------------------
 % ############# PLOT CONVERGENCE MAPS  #############
 %--------------------------------------------------------------------
-\begin{figure}
+\begin{figure*}
     \begin{center}
-    \includegraphics[width=\textwidth]{figures/bin1and2.pdf}
-    \includegraphics[width=\textwidth]{figures/bin3.pdf}
-    \includegraphics[width=0.5\textwidth]{figures/bin5.pdf}
+    \includegraphics[width=\textwidth]{figures/example_kmaps.pdf}
     \caption{
-     Example of convergence map simulated using the \texttt{SBILens} package.
+     Example of convergence maps simulated using the \texttt{SBILens} package.
     }
      \label{fig:convergence_maps}
      \end{center}
-\end{figure}
+\end{figure*}
 %--------------------------------------------------------------------
 % ############# PLOT CONVERGENCE MAPS  #############
 %--------------------------------------------------------------------
@@ -490,7 +488,7 @@ This loss function is equivalent to the log-determinant of the inverse Fisher ma
 % \LM{TODO: condensed introduction; emphasize learning compression at single point; network learns score function which generalises smoothly away from fiducial \cite{Makinen_2021, Makinen_2022, Charnock_2018}, Wandelt (in prep.) 
 % }
 %--------------------------------------------------------------------
-\subsection{Compression strategy}
+\subsubsection{Compression strategy}
 %--------------------------------------------------------------------
 The different compression strategies differ in the loss function employed during the training phase. For all of them, we use the same convolutional neural network architecture to build the compressor, specifically the ResNet-18, a deep ResNet architecture \citep{he2016deep}. The ResNet-18 is implemented using Haiku \citep{haiku2020github}, a Python deep learning library built on top of Jax.
 
@@ -503,7 +501,7 @@ Indeed, as mentioned before, we perform the Likelihood-Free Inference (LFI) as a
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
-\subsubsection{Inference strategy}\label{Sec:Inference_strategy}
+\subsection{Inference strategy}\label{Sec:Inference_strategy}
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
 By comparing the posteriors $p(\bm{\theta}| \bm{t})$ obtained with different compression strategies, we can assess the sensitivity of the results to the choice of the compression method. In particular, the more informative the summary statistics, the closer the posterior $p(\bm{\theta} | \bm{t})$ is to the true posterior $p(\bm{\theta} | \bm{x})$.  \\
