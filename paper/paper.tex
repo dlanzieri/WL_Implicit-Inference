@@ -72,11 +72,11 @@ Université Paris-Saclay, Université Paris Cité, CEA, CNRS, AIM, 91191, Gif-su
 %------------------------------------------------------------------
 %------------------------------------------------------------------
 \section{Introduction}
-Weak gravitational lensing by the large-scale structure is caused by the presence of foreground matter bending the light emitted by background galaxies. Being sensitive to the large-scale structure of the universe, it is one of the most promising tools for investigating the nature of dark energy, the origin of the accelerating expansion of the universe and estimating cosmological parameters. Future cosmological surveys, such as the Legacy Survey of Space and Time (LSST) of the Vera C. Rubin Observatory \citep{ivezic2019lsst}, the Nancy Grace Roman Space Telescope \citep{spergel2015wide}, and the Euclid Mission \citep{laureijs2011euclid}, will rely on weak gravitational lensing as one of the principal physical probes to address unresolved questions in current cosmology.
- As these surveys become deeper, they will be able to access more non-Gaussian features of the matter fields. This makes the standard weak lensing analyses, which rely on two-point statistics such as the 2-point shear correlation or the angular power spectrum, sub-optimal. These analyses are unable to fully capture the non-Gaussian information imprinted in the lensing signal and can only access Gaussian information.
+Weak gravitational lensing by large-scale structures (LSS) is caused by the presence of foreground matter bending the light emitted by background galaxies. Being sensitive to the large-scale structure of the universe, it is one of the most promising tools for investigating the nature of dark energy, the origin of the accelerating expansion of the universe and estimating cosmological parameters. Future cosmological surveys, such as the Legacy Survey of Space and Time (LSST) of the Vera C. Rubin Observatory \citep{ivezic2019lsst}, Nancy Grace Roman Space Telescope \citep{spergel2015wide}, and the Euclid Mission \citep{laureijs2011euclid}, will rely on weak gravitational lensing as one of the principal physical probes to address unresolved questions in current cosmology.
+ As these surveys become deeper, they will be able to access more non-Gaussian features of the matter fields. This makes the standard weak-lensing analyses, which rely on two-point statistics such as the 2-point shear correlation or the angular power spectrum, sub-optimal. These analyses are unable to fully capture the non-Gaussian information imprinted in the lensing signal and can only access Gaussian information.
 
 
-To overcome this limitation, several higher-order statistics have been introduced. These include weak lensing peak counts \citep{liu2015cosmology,  liu2015cosmological, lin2015new, kacprzak2016cosmology, peel2017cosmological, shan2018kids, martinet2018kids, ajani2020constraining, harnois2021cosmic, zurcher2022dark}, wavelet and scattering transform \citep{ajani2021starlet, cheng2021weak}, the one point PDF \citep{liu2019constraining, uhlemann2020fisher, boyle2021nuw}, Minkowski functionals \citep{kratochvil2012probing, petri2013cosmology}, moments of mass maps \citep{gatti2021dark},  and 3 point statistics \citep{takada2004cosmological, semboloni2011weak, rizzato2019tomographic, halder2021integrated}. 
+To overcome this limitation, several higher order statistics have been introduced. These include weak-lensing peak counts \citep{liu2015cosmology,  liu2015cosmological, lin2015new, kacprzak2016cosmology, peel2017cosmological, shan2018kids, martinet2018kids, ajani2020constraining, harnois2021cosmic, zurcher2022dark}, wavelet and scattering transform \citep{ajani2021starlet, cheng2021weak}, the one-point probability distribution function \citep[PDF][]{liu2019constraining, uhlemann2020fisher, boyle2021nuw}, Minkowski functionals \citep{kratochvil2012probing, petri2013cosmology}, moments of mass maps \citep{gatti2021dark},  and three-point  point statistics \citep{takada2004cosmological, semboloni2011weak, rizzato2019tomographic, halder2021integrated}. 
 Although these methods have proven to improve cosmological constraints, they rely on summary statistics, for which an analytical description is often lacking. These methods frequently assume a Gaussian likelihood and require accurate computation of the covariance matrix, which can be challenging.
 
 
@@ -91,11 +91,11 @@ A significant question is how to design data compression procedures, aiming to d
 
 
 
-In this paper, we present a comparison of the performance of various neural network-based compression schemes within the Likelihood-Free Inference (LFI) framework. These methods differ in terms of the loss functions used to train the neural network, but they share the same inference strategy based on neural density estimation. To address the need for result validation in the LFI context, we employ a Bayesian forward modeling approach that enables inference on the joint posterior of the cosmological parameters and the convergence field. The forward model is based on \href{https://github.com/DifferentiableUniverseInitiative/sbi_lens}{\url{SBILens}}, a Python package designed for weak lensing inference with differentiable simulator implemented in Jax. \texttt{SBILens} allows the sampling of convergence maps in a tomographic setting, accounting for the cross-correlation between different redshift bins.
+In this paper, we present a comparison of the performance of various neural network-based compression schemes within the Likelihood-Free Inference (LFI) framework. These methods differ in terms of the loss functions used to train the neural network, but they share the same inference strategy based on neural density estimation. To address the need for result validation in the LFI context, we employ a Bayesian forward modeling approach that enables inference on the joint posterior of the cosmological parameters and the convergence field. The forward model is based on \href{https://github.com/DifferentiableUniverseInitiative/sbi_lens}{\url{SBILens}}, a Python package designed for weak-lensing inference with differentiable simulator implemented in Jax. \texttt{SBILens} allows the sampling of convergence maps in a tomographic setting, accounting for the cross-correlation between different redshift bins.
 
 
 
-The paper is structured as follows: in \autoref{Sec:Motivation}, we illustrate the motivation behind this work. In \autoref{Sec:the SBILens framework}, we introduce the \texttt{SBILens} framework and describe the simulated data used in this work. In \autoref{Sec:experiment}, we detail the inference strategy and the three different approaches we used: the power spectrum, the map-based inference based on the Bayesian forward-modeling, and the map-based inference based on the LFI. In the same section, we also provide a detailed overview of different neural compression strategies. In \autoref{Sec:results}, we discuss the results and validate the LFI approaches. Finally, we conclude in \autoref{Sec:conclusion}. 
+The paper is structured as follows: in Section \ref{Sec:Motivation}, we illustrate the motivation behind this work. In Section \ref{Sec:the SBILens framework}, we introduce the \texttt{SBILens} framework and describe the simulated data used in this work. In Section \ref{Sec:experiment}, we detail the inference strategy and the three different approaches we used: the power spectrum, the map-based inference based on the Bayesian forward-modeling, and the map-based inference based on the LFI. In the same section, we also provide a detailed overview of different neural compression strategies. In Section \ref{Sec:results}, we discuss the results and validate the LFI approaches. Finally, we conclude in Section \ref{Sec:conclusion}. 
 %------------------------------------------------------------------
 %------------------------------------------------------------------
 %------------------------------------------------------------------
@@ -122,7 +122,7 @@ To overcome this limitation while still capturing the full information content o
 \paragraph{\textbf{Explicit inference}} referring to all Likelihood-based inference approaches.  
 This approach involves treating the simulator as a probabilistic model and performing inference over the joint posterior:
 \begin{equation}
-        p(\bm{\theta},\bm{z}|\bm{x})\propto  p(\bm{x},\bm{z}|\bm{\theta}) p(\bm{z}|\bm{\theta}).
+        p(\bm{\theta},\bm{z}|\bm{x})\propto  p(\bm{x}|\bm{z},\bm{\theta}) p(\bm{z}|\bm{\theta})p(\bm{\theta}).
 \end{equation}
 In the context of the forward model and full-field analysis, Bayesian Hierarchical Models (BHMs) fall into this category.
 A Bayesian forward approach involves using a given physical model to predict observations and then comparing these predictions with observations to infer the parameters of the model.
@@ -151,7 +151,7 @@ Many of these papers have used neural compression techniques that rely on optimi
 As we will demonstrate in the following sections, this corresponds to training the model to estimate the mean and the median of the posterior distribution. Other papers rely on assuming proxy Gaussian likelihoods and estimate the mean and covariance of these likelihoods from simulations.
 Such compression of summaries could be sub-optimal in certain applications, resulting in a loss of information and hence larger contours. 
 
-Therefore, our primary focus will be to investigate the effectiveness and validity of these compression techniques in the context of weak lensing applications (within the limits of our setting).
+Therefore, our primary focus will be to investigate the effectiveness and validity of these compression techniques in the context of weak-lensing applications (within the limits of our setting).
 
 \vspace{1cm}
 Ultimately, we should keep in mind that, for a given simulation model, if an optimal compression statistic is used, the two approaches should converge to the same posterior. Therefore, the goals of this work will be:
@@ -166,7 +166,7 @@ Ultimately, we should keep in mind that, for a given simulation model, if an opt
 %------------------------------------------------------------------
 %------------------------------------------------------------------
 \section{The SBILens framework}\label{Sec:the SBILens framework}
-To investigate the questions above, we have developed the Python package \href{https://github.com/DifferentiableUniverseInitiative/sbi_lens}{\texttt{SBILens}}, a weak lensing differentiable simulator based on a log-normal model. \texttt{SBILens} enables the sampling of convergence maps in a tomographic setting while considering the cross-correlation between different redshift bins.
+To investigate the questions above, we have developed the Python package \href{https://github.com/DifferentiableUniverseInitiative/sbi_lens}{\texttt{SBILens}}, a weak-lensing differentiable simulator based on a log-normal model. \texttt{SBILens} enables the sampling of convergence maps in a tomographic setting while considering the cross-correlation between different redshift bins.
 \subsection{Lognormal Modeling}\label{Sec:Lognormal Modeling}
 For various cosmological applications, the non-Gaussian field can be modeled as a Lognormal field \citep{coles1991lognormal,bohm2017bayesian}.
 This model offers the advantage of generating the matter or convergence field rapidly while allowing the extraction of information beyond the two-point statistics. 
@@ -189,7 +189,7 @@ The modeling of the shift parameter can be approached in various ways. For examp
 
 While it is straightforward to simulate a single map, if we want to constrain the convergence map in different redshift bins, an additional condition must be met. The covariance of the map should recover the correct angular power spectrum:
 \begin{equation}\label{power_spectrum_definition}
-    \left \langle \tilde{\kappa}^{(i)}_{ln} (\ell)\tilde{\kappa}^{(j)}_{ln}(\ell')\right \rangle =C^{ij}_{ln}(\ell)\delta^{K}(\ell-\ell')
+    \left \langle \tilde{\kappa}^{(i)}_{ln} (\ell)\tilde{\kappa}^{*(j)}_{ln}(\ell')\right \rangle =C^{ij}_{ln}(\ell)\delta^{K}(\ell-\ell')
 \end{equation}
 where $ C^{ij}_{ln}(\ell)$ is the power spectrum of $\kappa_{ln}$ in Fourier space, defined as:
 \begin{equation}\label{Eq:log_norm_cls}
@@ -327,7 +327,7 @@ where we set the shape noise $\sigma_e = 0.26$ and the galaxy number density $n_
     \centering
     \includegraphics[width=\textwidth]{figures/psconvergencemaps.pdf}
     \caption{
-    Convergence power spectra for different tomographic bin combinations. The solid yellow line shows the measurement from 20 simulated maps using the survey setting described in \autoref{Sec:the SBILens framework}, while the black dashed line shows the theoretical predictions computed using jax-cosmo. In this figure, the shaded regions represent the standard deviation from 20 independent map realizations.
+    Convergence power spectra for different tomographic bin combinations. The solid yellow line shows the measurement from 20 simulated maps using the survey setting described in Section \ref{Sec:the SBILens framework}, while the black dashed line shows the theoretical predictions computed using jax-cosmo. In this figure, the shaded regions represent the standard deviation from 20 independent map realizations.
     }
      \label{fig:psconvergence_maps}
 \end{figure*}
@@ -337,7 +337,7 @@ where we set the shape noise $\sigma_e = 0.26$ and the galaxy number density $n_
 %------------------------------------------------------------------
 \section{Experiment}\label{Sec:experiment}
 In the following section, we illustrate the inference strategy for the two approaches under investigation: the Bayesian forward modeling and the map-based inference based on the LFI.
-Additionally, we conduct a power spectrum study. Indeed, as discussed in \autoref{Sec:Lognormal Modeling}, log-normal fields offer the advantage of rapidly generating convergent fields while accounting for non-Gaussianities. To emphasize this claim further, along with the full-field analysis, we include a power spectrum analysis. This analysis demonstrates that there is indeed a gain of information when adopting a full-field approach. \\
+Additionally, we conduct a power spectrum study. Indeed, as discussed in Section \ref{Sec:Lognormal Modeling}, log-normal fields offer the advantage of rapidly generating convergent fields while accounting for non-Gaussianities. To emphasize this claim further, along with the full-field analysis, we include a power spectrum analysis. This analysis demonstrates that there is indeed a gain of information when adopting a full-field approach. \\
 Finally, we provide a detailed overview of various neural compression strategies that differ in terms of the loss functions used to train the neural network.
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
@@ -350,7 +350,7 @@ Finally, we provide a detailed overview of various neural compression strategies
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
-To construct the explicit map-based inference strategy in the Hierarchical Bayesian framework, we built a likelihood based on the data model described in \autoref{Sec:Lognormal Modeling}. 
+To construct the explicit map-based inference strategy in the Hierarchical Bayesian framework, we built a likelihood based on the data model described in Section \ref{Sec:Lognormal Modeling}. 
 As mentioned before, this means that the simulator serves as the physical model capable of generating the non-linear representation of the convergence map.
 
 However, in practical terms, the measurement of convergence for each pixel and bin will differ from real observations due to noise. This is taken into consideration in the likelihood. Specifically, for LSST Y10, the number of galaxies for each pixel should be sufficiently high so that, according to the central limit theorem, we can assume the observation is characterized by Gaussian noise, with $\sigma_n^2=\sigma_e^2/N_s$, where $N_s$ represents the total number of source galaxies per bin and pixel. Given $\sigma_n^2$ the variance of this Gaussian likelihood, its negative log-form can be expressed as:
@@ -402,7 +402,7 @@ This methods has been widely adopted in various previous studies  \citep{ribli20
    \mathcal{L}=\frac{1}{N_{\theta}}(\bm{t}-\bm{\theta})^2.
 \end{equation}
 Here $N_{\theta}$ represents the number of cosmological parameters, $\bm{t}$ denotes the summary statistics, and $\bm{\theta}$ corresponds to the data vector of the cosmological parameters. 
-However, it is important to note that this approach does not guarantee the recovery of maximally informative summary statistics. Indeed, minimizing the $L_{2}$ norm is equivalent to training the model to estimate the mean of the posterior distribution.  We prove this statement in \autoref{Sec:appendix_Mean Square Error}.
+However, it is important to note that this approach does not guarantee the recovery of maximally informative summary statistics. Indeed, minimizing the $L_{2}$ norm is equivalent to training the model to estimate the mean of the posterior distribution.  We prove this statement in Section \ref{Sec:appendix_Mean Square Error}.
 %--------------------------------------------------------------------
 \paragraph{\textcolor{violet}{Maximum Absolute Error (MAE)}}
 %--------------------------------------------------------------------
@@ -411,7 +411,7 @@ Another commonly used approach involves minimizing the $L_1$ norm or Mean Absolu
     \mathcal{L}=|\bm{t}-\bm{\theta}|
 \end{equation}
 where $\bm{t}$ represents the summary statistics and $\bm{\theta}$ denotes the cosmological parameters.
-In \autoref{Sec:appendix_Maximum Absolute Error}, we demonstrate that minimizing this loss function is equivalent to training the model to estimate the median of the posterior distribution. While extensively employed in various previous studies \citep{2018PhRvD..97j3515G, fluri2018cosmological, ribli2019weak}, similar to the previous consideration for the MSE, it is important to note that the effectiveness of this loss function in extracting sufficient statistics needs to be demonstrated.
+In Section \ref{Sec:appendix_Maximum Absolute Error}, we demonstrate that minimizing this loss function is equivalent to training the model to estimate the median of the posterior distribution. While extensively employed in various previous studies \citep{2018PhRvD..97j3515G, fluri2018cosmological, ribli2019weak}, similar to the previous consideration for the MSE, it is important to note that the effectiveness of this loss function in extracting sufficient statistics needs to be demonstrated.
 %--------------------------------------------------------------------
 \paragraph{\textcolor{violet}{Variational Mutual Information Maximization (VMIM)}}
 %--------------------------------------------------------------------
@@ -479,7 +479,7 @@ The loss function takes the following form:
 where $\textbf{F}$ is the Fisher matrix, and $r_{\Sigma}$ is a regularization term typically dependent on the covariance matrix,  introduced to control the magnitude of the summaries.
 Since computing the Fisher matrix requires a large number of simulations, they proceed as follows: a large number of simulations with the same fiducial cosmology but different initial random conditions are fed forwards through identical networks. The summaries from these simulations are combined to compute the covariance matrix. Additionally, the summaries from simulations created with different fixed cosmologies are used to calculate the derivative of the mean of the summary with respect to the parameter.\footnote{The method of finite differences is necessary when the framework in which the code is implemented does not support automatic differentiation.} Finally, the covariance and the mean derivatives are combined to obtain the Fisher matrix.
 
-An application of this method in the context of weak lensing can be traced back to the work of \citet{fluri2021cosmological, fluri2022full}. Following \citet{charnock2018automatic}, they presented a compression approach that relies on the optimization of the Cramér-Rao bound. However, their approach does not assume that the summary follows a Gaussian likelihood. The loss function takes the form:
+An application of this method in the context of weak-lensing can be traced back to the work of \citet{fluri2021cosmological, fluri2022full}. Following \citet{charnock2018automatic}, they presented a compression approach that relies on the optimization of the Cramér-Rao bound. However, their approach does not assume that the summary follows a Gaussian likelihood. The loss function takes the form:
 \begin{equation}\label{eq:loss_gfim}
 \mathcal{L}=\log{\text{det}(\bm{\Sigma}_{\bm{\theta}}(\bm{t})})-2\log{\left|\text{det}\left(\frac{\partial \Psi_{\bm{\theta}}(\bm{t})}{\partial \bm{\theta}}\right)\right|},
 \end{equation}
@@ -569,7 +569,7 @@ For each summary statistic, we approximate the posterior distribution using the 
                         
             \hline      
         \end{tabular}
-        \caption{Table summarizing the different neural compression schemes used for weak lensing applications. The table includes all studies conducted within the context of implicit analysis (Likelihood-free) and standard Likelihood-based analysis. \\
+        \caption{Table summarizing the different neural compression schemes used for weak-lensing applications. The table includes all studies conducted within the context of implicit analysis (Likelihood-free) and standard Likelihood-based analysis. \\
         Abbreviations used in the Table: MSE-Mean Square Error; MAE-Maximum Absolute Error; GNLL- Gaussian Negative Log Likelihood; VMIM- Variational Mutual Information Maximization; IMNN- Information Maximizing Neural Networks; GPABC-Gaussian Processes Approximate Bayesian Computation.}
         \label{tab:biblio_survey}
     \end{center}
@@ -581,13 +581,13 @@ For each summary statistic, we approximate the posterior distribution using the 
 %--------------------------------------------------------------------
 \section{Results}\label{Sec:results}
 %--------------------------------------------------------------------
-We present the results of the constraints on the full $\Lambda$CDM parameter space expected for a survey like LSST-Y10. The results are obtained using the simulation procedure outlined in \autoref{Sec:the SBILens framework} and the parameter inference strategy described in \autoref{Sec:Inference_strategy}.
+We present the results of the constraints on the full $\Lambda$CDM parameter space expected for a survey like LSST-Y10. The results are obtained using the simulation procedure outlined in Section \ref{Sec:the SBILens framework} and the parameter inference strategy described in Section \ref{Sec:Inference_strategy}.
 We begin by analyzing the impact of the different compression strategies on the final cosmological constraints. Subsequently, we compare the outcomes of three different inference procedures: the 2-point statistics, the explicit full-field statistics, and the implicit full-field statistics using CNN summaries.
 %--------------------------------------------------------------------
 %--------------------------------------------------------------------
 \subsection{Power spectrum and full-field statistics}
 %--------------------------------------------------------------------
-We now compare the constraining power of the three different approaches described in \autoref{Sec:experiment}: the standard two-point statistics and two map-based approaches, the explicit inference and the implicit inference strategy. 
+We now compare the constraining power of the three different approaches described in Section \ref{Sec:experiment}: the standard two-point statistics and two map-based approaches, the explicit inference and the implicit inference strategy. 
 As outlined before, our interest is to prove that the two map-based approaches lead to very comparable posterior distributions. We present the $68.3\%$ and $95.5\%$ confident regions from one fiducial map for the full $\Lambda$CDM parameters in \autoref{fig:contours_posterior_imp_ex_ps}. The contours obtained by the angular $C_{\ell}$ analysis are plotted in violet, the ones for the explicit inference (HMC) in orange, and those for the implicit inference (Normalizing Flow) in blue. 
 We can see from the figure that the contours from the HMC-based inference and the Normalizing flow-based inference are remarkably similar.  We quantify the results by computing the Figure of Merit defined as follows:
 \begin{equation}\label{Eq:Figure_of_merit}
@@ -606,7 +606,7 @@ We find that the map-based explicit and implicit strategies lead to an improveme
 \subsection{Optimal compression strategy}
 \autoref{fig:contours_posterior_diff_loss} shows our $68.3\%$ and $95.5\%$ constraints from one fiducial map using different compressed summaries.
 We compare the constraints obtained from MSE (black contours), MAE (magenta contours), and VMIM (blue contours).
-We note that the results obtained using different summaries are generally in agreement with each other, and there are no tensions present for any of the cosmological parameters. We report the marginalized summary constraints in \autoref{tab:summaries}. The results concern the cosmological parameters that are better constrained from weak lensing: $\Omega_c$, $\sigma_8$, $w_0$.
+We note that the results obtained using different summaries are generally in agreement with each other, and there are no tensions present for any of the cosmological parameters. We report the marginalized summary constraints in \autoref{tab:summaries}. The results concern the cosmological parameters that are better constrained from weak-lensing: $\Omega_c$, $\sigma_8$, $w_0$.
 We note that the VMIM compressed summary statistics prefer values of $\Omega_c$, $\sigma_8$, and $w_0$ that are closer to our fiducial cosmology than those inferred by MSE and MAE. \\
 To further quantify these outcomes, we consider the Figure of Merit described in \autoref{Eq:Figure_of_merit}. 
 The results are presented in \autoref{tab:f_o_m}.
@@ -621,7 +621,7 @@ In particular, the FoM of ($\Omega_c$, $\sigma_8$) is improved by $1.24\times$ a
     \centering
         \includegraphics[width=\textwidth]{figures/contours_posterior_imp_ex_ps_dashed.pdf}
         \caption{
-        Constraints on the $\Lambda$CDM parameter space as found in the LSST Y10 survey setup. The constraints are obtained by applying the $C_{\ell}$ (violet contours), the full field explicit inference (orange contours), and the full field implicit inference strategy (blue dashed contours), described in \autoref{Sec:experiment}.
+        Constraints on the $\Lambda$CDM parameter space as found in the LSST Y10 survey setup. The constraints are obtained by applying the $C_{\ell}$ (violet contours), the full field explicit inference (orange contours), and the full field implicit inference strategy (blue dashed contours), described in Section \ref{Sec:experiment}.
         The contours show the $68\%$ and the $95\%$  confidence regions. The dashed white lines define the true parameter values.}
         \label{fig:contours_posterior_imp_ex_ps}
 \end{figure*}
@@ -634,7 +634,7 @@ In particular, the FoM of ($\Omega_c$, $\sigma_8$) is improved by $1.24\times$ a
     \centering
         \includegraphics[width=\textwidth]{figures/contours_posterior_loss_dashed.pdf}
         \caption{
-        Constraints on the $\Lambda$CDM parameter space as found in the LSST Y10 survey setup. The constraints are obtained from three CNN map compressed statistics: the MSE (black dashed contours), the MAE (magenta dashed contours), and VMIM (blue contours), described in \autoref{Sec:experiment}.
+        Constraints on the $\Lambda$CDM parameter space as found in the LSST Y10 survey setup. The constraints are obtained from three CNN map compressed statistics: the MSE (red contours), the MAE (black dashed contours), VMIM (yellow contours), the GNLL (blue dotted contours), described in Section \ref{Sec:experiment}.
         The contours show the $68\%$ and the $95\%$  confidence regions. The dashed white lines define the true parameter values.}
         \label{fig:contours_posterior_diff_loss}
 \end{figure*}
@@ -647,9 +647,9 @@ In particular, the FoM of ($\Omega_c$, $\sigma_8$) is improved by $1.24\times$ a
             \hline
             FoM & $C_{\ell}$ & Full Field (HMC)&  VMIM & MSE & MAE & GNLL   \\
             \hline\hline
-            $\Omega_c-  \sigma_8$ & 1222 & 2520 & 2526 & 2043 & 2316\\
-            $\Omega_c-  w_0$      & 100  & 198  & 190  & 152  & 162\\
-            $\sigma_8-  w_0$      & 77   & 176  & 171  & 139  & 149\\
+            $\Omega_c-  \sigma_8$ & 1222 & 2520 & 2526 & 2043 & 2316 & 1882 \\
+            $\Omega_c-  w_0$      & 100  & 198  & 190  & 152  & 162  & 178  \\
+            $\sigma_8-  w_0$      & 77   & 176  & 171  & 139  & 149  & 153  \\
             \hline
         \end{tabular}
         \caption{ Figure of Merit (FoM) for different inference strategies: the convergence power spectrum $C_{\ell}$, the HMC, the CNN map compressed statistics with the MSE, the VMIM, the MAE and the GNLL loss functions. The values of the figure of merit are inversely proportional to the area of the contours; the larger the FoM, the higher the constraining power.}
@@ -666,17 +666,17 @@ In particular, the FoM of ($\Omega_c$, $\sigma_8$) is improved by $1.24\times$ a
              & VMIM & MSE & MAE &GNLL \\
             \hline
             \hline
-            $\Omega_c$ & $0.274^{+0.026}_{-0.025}$  & $0.283^{+0.031}_{-0.029}$  & $0.279^{+0.030}_{-0.028}$ & \\
+            $\Omega_c$ & $0.274^{+0.026}_{-0.025}$  & $0.283^{+0.031}_{-0.029}$  & $0.279^{+0.030}_{-0.028}$ & $0.275^{+0.029}_{-0.025}$\\
             \hline
-            $\Omega_b$ & $ \left( 49.9^{+6.0}_{-6.4} \right) \times 10^{-3}$ &  $\left( 49.2\pm 6.1 \right) \times 10^{-3}$ &  $\left( 50.1^{+5.9}_{-6.1} \right) \times 10^{-3}$ &  \\
+            $\Omega_b$ & $ \left( 49.9^{+6.0}_{-6.4} \right) \times 10^{-3}$ &  $\left( 49.2\pm 6.1 \right) \times 10^{-3}$ &  $\left( 50.1^{+5.9}_{-6.1} \right) \times 10^{-3}$ & $\left( 49.5^{+5.7}_{-6.2} \right) \times 10^{-3}$ \\
             \hline
-            $\sigma_8$ & $0.819^{+0.031}_{-0.029}$  & $0.808^{+0.034}_{-0.032}$  &  $0.808^{+0.032}_{-0.030}$ &   \\
+            $\sigma_8$ & $0.819^{+0.031}_{-0.029}$  & $0.808^{+0.034}_{-0.032}$  &  $0.808^{+0.032}_{-0.030}$ &  $0.834^{+0.036}_{-0.035}$ \\
             \hline
-            $w_0$      & $-1.00^{+0.20}_{-0.22}$  & $-1.13^{+0.23}_{-0.22}$ &   $-1.16\pm 0.22$  &  \\
+            $w_0$      & $-1.00^{+0.20}_{-0.22}$  & $-1.13^{+0.23}_{-0.22}$ &   $-1.16 \pm 0.22$  &  $-0.73^{+0.19}_{-0.22}$ \\
             \hline
-            $h_0$      & $0.666^{+0.061}_{-0.057}$ & $0.662^{+0.056}_{-0.057}$  & $0.664^{+0.056}_{-0.058}$  & \\
+            $h_0$      & $0.666^{+0.061}_{-0.057}$ & $0.662^{+0.056}_{-0.057}$  & $0.664^{+0.056}_{-0.058}$  & $0.670^{+0.059}_{-0.061}$\\
             \hline
-            $n_s$      &  $0.963^{+0.041}_{-0.038}$ &  $0.956 \pm 0.041$ &  $0.955^{+0.039}_{-0.041}$  & \\
+            $n_s$      &  $0.963^{+0.041}_{-0.038}$ &  $0.956 \pm 0.041$ &  $0.955^{+0.039}_{-0.041}$  & $0.954\pm 0.042$\\
             \hline
         \end{tabular}
         \caption{Summary of the marginalized parameter distributions.}
@@ -692,7 +692,7 @@ In particular, the FoM of ($\Omega_c$, $\sigma_8$) is improved by $1.24\times$ a
 We start with a consideration: Deep learning approaches for implicit inference typically involve two steps. The first step is the automatic learning of an optimal low-dimensional summary statistic, and the second step is the use of a Neural Density Estimator in low dimensions to either build an estimate $P_{\bm{\varphi}}$ of the likelihood function $p(\bm{x}|\bm{\theta})$ (Neural Likelihood Estimation) or build an estimate $P_{\bm{\varphi}}$ of the posterior distribution $p(\bm{\theta}|\bm{x})$ (Neural Posterior Estimation). \\
 Now, one can understand that both of these steps may potentially impact the final constraints on the parameters of interest. \\
 Having said that, the main motivation for this work is to evaluate the impact of a given compression strategy on the final posterior distribution and, consequently, determine whether an optimal compression strategy exists. Furthermore, the aim is to demonstrate that by using this strategy, both implicit and explicit methods yield the same posterior. \\
-To construct the forward model for explicit inference and simulate the mock data required to train the implicit model, we developed \href{https://github.com/DifferentiableUniverseInitiative/sbi_lens}{\url{SBILens}}, a Jax-based weak lensing simulator optimized for inference applications that need access to the model's derivatives. Our analysis is based on synthetic weak lensing data with five tomographic bins, mimicking a survey like LSST-Y10.
+To construct the forward model for explicit inference and simulate the mock data required to train the implicit model, we developed \href{https://github.com/DifferentiableUniverseInitiative/sbi_lens}{\url{SBILens}}, a Jax-based weak-lensing simulator optimized for inference applications that need access to the model's derivatives. Our analysis is based on synthetic weak-lensing data with five tomographic bins, mimicking a survey like LSST-Y10.
 
 
 After providing an overview of the different compression strategies adopted in the literature for both Likelihood-Free Inference and likelihood-based inference strategies, we compared the impact of some of those on the final constraints on the cosmological parameters for a $\Lambda$CDM model. 
